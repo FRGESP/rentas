@@ -8,7 +8,7 @@ export async function POST(request, { params }) {
     const req = await request.json();
     try {
         const hash = await hashPassword(req.password);
-        const [response] = await conn.query("CALL SP_REGISTRAREMPLEADO(?,?,?,?,?,?,?,?,?,?)", [hash, req.nombre, req.apellidoPat, req.apellidoMat, req.telefono, req.edad, req.rol, req.estatus, req.sucursal, params.id]);
+        const [response] = await conn.query("CALL SP_REGISTRAREMPLEADO(?,?,?,?,?,?,?,?)", [hash, req.nombre, req.apellidoPat, req.apellidoMat, req.telefono, req.rol, req.estatus, params.id]);
 
         return NextResponse.json(response, { status: 200 });
     } catch (error) {
@@ -32,7 +32,7 @@ export async function PUT(request, { params }) {
     const req = await request.json();
     const { id } = params;
     try {
-        const [response] = await conn.query("CALL SP_UPDATEEMPLEADO(?,?,?,?,?,?,?,?,?)", [id, req.Nombre, req.ApellidoPaterno, req.ApellidoMaterno, req.Edad, req.Telefono, req.Sucursal, req.Rol, req.Estatus]);
+        const [response] = await conn.query("CALL SP_UPDATEEMPLEADO(?,?,?,?,?,?,?)", [id, req.Nombre, req.ApellidoPaterno, req.ApellidoMaterno, req.Telefono, req.Rol, req.Estatus]);
         // if (response.affectedRows === 0) {
         //     return NextResponse.json({ error: "Hubo un error al actualizar un empleado" }, { status: 500 });
         // }

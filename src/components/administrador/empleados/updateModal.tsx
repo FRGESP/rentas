@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil } from "lucide-react";
 import axios from "axios";
-import {updateBitacoraEmpleado } from "@/actions";
-import { useRouter } from "next/navigation";
 
 
 interface UpdateModalProps {
@@ -18,36 +16,20 @@ export interface Empleado {
     Nombre: string;
     ApellidoPaterno: string;
     ApellidoMaterno: string;
-    Edad: string;
     Telefono: string;
-    Sucursal: string;
     Rol: string;
     Estatus: string;
-}
-
-//Va a guardar la bitacora de los cambios
-export interface Bitacora {
-    Campo: string;
-    ValorAnterior: string;
-    ValorNuevo: string;
 }
 
 
 function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
     const { toast } = useToast();
-    const router = useRouter();
 
     //ContRola el estado del modal
     const [isOpen, setIsOpen] = useState(false);
 
     //ContRola el estado de los errores
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    //Guarda la informacion de la bitacora
-    const [bitacora, setBitacora] = useState<{[key: string]:string}>();
-
-    //Controla si hay informacion en la bitacora
-    const [isBitacoraEmpty, setIsBitacoraEmpty] = useState(false);
 
     //Guarda la informacion del empleado
     const [empleado, setEmpleado] = useState<Empleado>()
@@ -57,9 +39,7 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
         Nombre: "",
         ApellidoPaterno: "",
         ApellidoMaterno: "",
-        Edad: "",
         Telefono: "",
-        Sucursal: "",
         Rol: "",
         Estatus: "",
     });
@@ -84,20 +64,6 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                 return newErrors;
             });
         }
-
-        if(String(empleado![name as keyof Empleado]) !== value){
-            setBitacora((prev) => ({
-                ...prev,
-                [name]: value,
-            }));
-        } else {
-            setBitacora((prev) => {
-                const newBitacora = { ...prev };
-                delete newBitacora[name];
-                return newBitacora;
-            });
-        }
-
     };
 
     //Funcion para abrir el modal
@@ -108,15 +74,10 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
             Nombre: "",
             ApellidoPaterno: "",
             ApellidoMaterno: "",
-            Edad: "",
             Telefono: "",
-            Sucursal: "",
             Rol: "",
             Estatus: "",
         });
-        setBitacora({});
-        setIsBitacoraEmpty(false);
-        await getSucursales();
         await getEmpleado();
         setIsOpen(true);
     };
@@ -124,26 +85,6 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
     const closeModal = () => {
         setIsOpen(false);
     };
-
-    //Interface Sucursal 
-    interface Sucursal {
-        Id: number;
-        Nombre: string;
-    }
-
-    //Guarda la informacion de las Sucursales
-    const [Sucursales, setSucursales] = useState([]);
-
-    //Funcion para obtener el Nombre y el id de las Sucursales
-    const getSucursales = async () => {
-        const response = await axios.get(`/api/users/administrador/empleados/sucursal`);
-        const data = response.data;
-        setSucursales(data);
-    }
-
-    useEffect(() => {
-        setIsBitacoraEmpty(!bitacora || Object.keys(bitacora).length === 0);
-    }, [bitacora]);
 
     //Funcion para obtener el id del empleado
     const getEmpleado = async () => {
@@ -154,9 +95,7 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
             Nombre: data.Nombre,
             ApellidoPaterno: data.ApellidoPaterno,
             ApellidoMaterno: data.ApellidoMaterno,
-            Edad: data.Edad,
             Telefono: data.Telefono,
-            Sucursal: data.Sucursal,
             Rol: data.Rol,
             Estatus: data.Estatus,
         });
@@ -176,20 +115,13 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
 
         if (Object.keys(newErrors).length == 0) {
 
-            const registrosBitacoras: Bitacora[] = Object.entries(bitacora!).map(([key, value]) => ({
-                Campo: key,
-                ValorAnterior: empleado ? empleado[key as keyof Empleado] : "",
-                ValorNuevo: value,
-            }));
-
-            const response = await updateBitacoraEmpleado(IdEmpleado, registrosBitacoras);
             const responseUpdate = await axios.put(`/api/users/administrador/empleados/${IdEmpleado}`, inputValue)
 
             if (responseUpdate.status === 200) {
                 onGuardado();
                 setIsOpen(false);
                 toast({
-                    title: "Empleado agregado",
+                    title: "Empleado actualizado",
                     description: "El empleado ha sido actualizado correctamente",
                     variant: "success",
                 });
@@ -274,22 +206,6 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                                 </div>
                                 <div className="w-full mt-3">
                                     <label
-                                        htmlFor="Edad"
-                                        className="font-bold text-lg flex-grow text-left"
-                                    >
-                                        Edad
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className={`border rounded-md w-full py-2 px-2 ${errors["Edad"] ? "border-red-500" : "border-black"}`}
-                                        name="Edad"
-                                        onChange={handleChange}
-                                        defaultValue={empleado?.Edad}
-                                    />
-                                    {errors["Edad"] && (<span className="text-sm text-red-500">{errors["Edad"]}</span>)}
-                                </div>
-                                <div className="w-full mt-3">
-                                    <label
                                         htmlFor="Telefono"
                                         className="font-bold text-lg flex-grow text-left"
                                     >
@@ -304,22 +220,6 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                                     />
                                     {errors["Telefono"] && (<span className="text-sm text-red-500">{errors["Telefono"]}</span>)}
                                 </div>
-                                <div className=" w-full mt-3">
-                                    <label
-                                        htmlFor="Sucursal"
-                                        className="font-bold text-lg flex-grow text-left"
-                                    >
-                                        Sucursal
-                                    </label>
-                                    <select onChange={handleChange} name="Sucursal" defaultValue={String(empleado?.Sucursal)} className={`border rounded-md w-full py-2 px-2 ${errors["Sucursal"] ? "border-red-500" : "border-black"}`}>
-                                        {Sucursales.map((Sucursal: Sucursal) => (
-                                            <option key={Sucursal.Id} value={Sucursal.Id}>
-                                                {Sucursal.Nombre}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors["Sucursal"] && (<span className="text-sm text-red-500">{errors["Sucursal"]}</span>)}
-                                </div>
                                 <div className="flex grid-cols-2 gap-5 justify-center mt-3">
                                     <div>
                                         <label className="font-bold text-lg flex-grow text-left" htmlFor="Rol">
@@ -328,7 +228,6 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                                         <select onChange={handleChange} name="Rol" defaultValue={String(empleado?.Rol)} className={`border rounded-md w-full py-2 px-2 ${errors["Rol"] ? "border-red-500" : "border-black"}`}
                                         >
                                             <option value="3">Administrador</option>
-                                            <option value="1">Vendedor</option>
                                             <option value="2">Cajero</option>
                                         </select>
                                         {errors["Rol"] && (<span className="text-sm text-red-500">{errors["Rol"]}</span>)}
@@ -355,8 +254,7 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                                     </button>
                                     <button
                                         onClick={handleSubmit}
-                                        className={`px-[20%] py-2 font-semibold text-white bg-acento rounded  mt-5 ${isBitacoraEmpty ? "bg-gray-500" : "hover:bg-acentohover"}`}
-                                        disabled={isBitacoraEmpty}
+                                        className="px-[20%] py-2 font-semibold text-white bg-acento rounded hover:bg-acentohover mt-5"
                                     >
                                         Aceptar
                                     </button>

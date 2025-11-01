@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import AddModal from "./addModal";
 import UpdateModal from "./updateModal";
 import { deleteEmpleado, getEmpleadosAction } from "@/actions";
-import { get } from "http";
 
 function EmpleadosPage() {
 
@@ -19,9 +18,7 @@ function EmpleadosPage() {
         IdEmp: number;
         Nombre: string;
         Telefono: string;
-        Edad: string;
         Rol: string;
-        Sucursal: string;
         Estatus: string;
     }
 
@@ -103,9 +100,7 @@ function EmpleadosPage() {
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Teléfono</th>
-                        <th>Edad</th>
                         <th>Rol</th>
-                        <th>Sucursal</th>
                         <th>Estatus</th>
                         <th>Acciones</th>
                     </tr>
@@ -116,9 +111,7 @@ function EmpleadosPage() {
                             <td>{empleado.ID}</td>
                             <td>{empleado.Nombre}</td>
                             <td>{empleado.Telefono}</td>
-                            <td>{empleado.Edad}</td>
                             <td>{empleado.Rol}</td>
-                            <td>{empleado.Sucursal}</td>
                             <td><div className=" justify-center flex">
                                 <p className={`${empleado.Estatus == "Activo" ? "bg-green-600 text-white" : empleado.Estatus == "Suspendido" ? "bg-yellow-500 text-white" : "bg-red-500 text-white"} rounded-lg w-fit py-2 px-1`}>{empleado.Estatus}</p>
                             </div></td>

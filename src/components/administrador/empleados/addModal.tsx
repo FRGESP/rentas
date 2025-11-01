@@ -27,9 +27,7 @@ function AddModal({onGuardado}: AddModalProps) {
     nombre: "",
     apellidoPat: "",
     apellidoMat: "",
-    edad: "",
     telefono: "",
-    sucursal: "",
     rol: "",
     estatus: "",
     password: ""
@@ -68,9 +66,7 @@ function AddModal({onGuardado}: AddModalProps) {
       nombre: "",
       apellidoPat: "",
       apellidoMat: "",
-      edad: "",
       telefono: "",
-      sucursal: "",
       rol: "",
       estatus: "",
       password: ""
@@ -81,24 +77,8 @@ function AddModal({onGuardado}: AddModalProps) {
     setIsOpen(false);
   };
 
-  //Interface Sucursal 
-  interface Sucursal {
-    Id: number;
-    Nombre: string;
-  }
 
-  //Guarda la informacion de las sucursales
-  const [sucursales, setSucursales] = useState([]);
 
-  const getSucursales = async () => {
-    const response = await axios.get(`/api/users/administrador/empleados/sucursal`);
-    const data = response.data;
-    setSucursales(data);
-  }
-
-  useEffect(() => {
-    getSucursales();
-  }, []);
 
   const handleSubmit = async () => {
 
@@ -199,21 +179,6 @@ function AddModal({onGuardado}: AddModalProps) {
                 </div>
                 <div className="w-full mt-3">
                   <label
-                    htmlFor="edad"
-                    className="font-bold text-lg flex-grow text-left"
-                  >
-                    Edad
-                  </label>
-                  <input
-                    type="number"
-                    className={`border rounded-md w-full py-2 px-2 ${errors["edad"] ? "border-red-500" : "border-black"}`}
-                    name="edad"
-                    onChange={handleChange}
-                  />
-                  {errors["edad"] && (<span className="text-sm text-red-500">{errors["edad"]}</span>)}
-                </div>
-                <div className="w-full mt-3">
-                  <label
                     htmlFor="telefono"
                     className="font-bold text-lg flex-grow text-left"
                   >
@@ -242,23 +207,6 @@ function AddModal({onGuardado}: AddModalProps) {
                   />
                   {errors["password"] && (<span className="text-sm text-red-500">{errors["password"]}</span>)}
                 </div>
-                <div className=" w-full mt-3">
-                  <label
-                    htmlFor="sucursal"
-                    className="font-bold text-lg flex-grow text-left"
-                  >
-                    Sucursal
-                  </label>
-                  <select onChange={handleChange} name="sucursal" defaultValue={'Default'} className={`border rounded-md w-full py-2 px-2 ${errors["sucursal"] ? "border-red-500" : "border-black"}`}>
-                    <option value="Default" disabled hidden>Seleccione una sucursal</option>
-                    {sucursales.map((sucursal: Sucursal) => (
-                      <option key={sucursal.Id} value={sucursal.Id}>
-                        {sucursal.Nombre}
-                      </option>
-                    ))}
-                  </select>
-                  {errors["sucursal"] && (<span className="text-sm text-red-500">{errors["sucursal"]}</span>)}
-                </div>
                 <div className="flex grid-cols-2 gap-5 justify-center mt-3">
                   <div>
                     <label className="font-bold text-lg flex-grow text-left" htmlFor="rol">
@@ -268,7 +216,6 @@ function AddModal({onGuardado}: AddModalProps) {
                     >
                       <option value="Default" disabled hidden>Seleccione un Rol</option>
                       <option value="3">Administrador</option>
-                      <option value="1">Vendedor</option>
                       <option value="2">Cajero</option>
                     </select>
                     {errors["rol"] && (<span className="text-sm text-red-500">{errors["rol"]}</span>)}

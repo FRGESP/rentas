@@ -54,12 +54,6 @@ const itemsAdmin = [
     icon: "/assets/administrador/Empleados.png",
     iconBold: "/assets/administrador/EmpleadosVerde.png",
   },
-  {
-    title: "Sucursales",
-    url: "/users/administrador/sucursales",
-    icon: "/assets/administrador/Sucursales.png",
-    iconBold: "/assets/administrador/SucursalesVerde.png",
-  }
 ];
 
 const itemsEntradas = [
@@ -97,7 +91,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex flex-col justify-center items-center overflow-hidden">
-          <img src="/assets/Login/Logo.png" alt="" className="items-center w-20"/>
+          <img src="/assets/Login/Logo.webp" alt="" className="items-center w-20"/>
         </div>
       </SidebarHeader>
       <SidebarContent>

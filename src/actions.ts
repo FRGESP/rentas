@@ -4,7 +4,6 @@ import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
 import axios from "axios"
-import { Empleado, Bitacora } from "@/components/administrador/empleados/updateModal";
 
 interface Credentials {
     user: string;
@@ -15,9 +14,7 @@ interface empleado {
     nombre: string;
     apellidoPat: string;
     apellidoMat: string;
-    edad: string;
     telefono: string;
-    sucursal: string;
     rol: string;
     estatus: string;
 }
@@ -114,17 +111,4 @@ export const addEmpleado = async (empleado: empleado) => {
     const response = await axios.post(`${process.env.URL}/api/users/administrador/empleados/${session.userId}`, empleado)
     const status = response.status;
     return status;
-}
-
-export const updateBitacoraEmpleado = async (id: number, bitacora: Bitacora[]) => {
-    const session = await getSession();
-    bitacora.map(async (item) => {
-        console.log(item)
-        const response = await axios.put(`${process.env.URL}/api/users/administrador/empleados/${id}/${session.userId}`, item)
-        const status = response.status;
-        if (status !== 200) {
-            return { status: status, message: response }
-        }
-    })
-
 }
