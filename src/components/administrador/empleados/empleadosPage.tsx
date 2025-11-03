@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, use } from "react";
 import axios from "axios";
-import { Pencil, Trash, Search, Plus } from "lucide-react";
+import { Trash, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import AddModal from "./addModal";

@@ -54,6 +54,12 @@ const itemsAdmin = [
     icon: "/assets/administrador/Empleados.png",
     iconBold: "/assets/administrador/EmpleadosVerde.png",
   },
+  {
+    title: "Propiedades",
+    url: "/users/administrador/propiedades",
+    icon: "/assets/administrador/Propiedades.png",
+    iconBold: "/assets/administrador/PropiedadesVerde.png",
+  },
 ];
 
 const itemsEntradas = [

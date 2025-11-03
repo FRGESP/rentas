@@ -51,6 +51,8 @@ const config: Config = {
   			},
 			acento: '#4CAF50',
   			acentohover: '#439046',
+			navy: '#0047AB',
+			navyhover: '#0059CC',
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',

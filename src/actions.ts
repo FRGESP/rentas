@@ -19,6 +19,14 @@ interface empleado {
     estatus: string;
 }
 
+interface Propiedad {
+    nombre: string;
+    tipo: string;
+    codigo: string;
+    calle: string;
+    colonia: string;
+}
+
 export const getSession = async () => {
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
 
@@ -111,4 +119,25 @@ export const addEmpleado = async (empleado: empleado) => {
     const response = await axios.post(`${process.env.URL}/api/users/administrador/empleados/${session.userId}`, empleado)
     const status = response.status;
     return status;
+}
+
+//Propiedades
+export const getPropiedades = async () => {
+    const response = await axios.get(`${process.env.URL}/api/users/administrador/propiedades`);
+    const data = response.data;
+    return data;
+}
+
+export const addPropiedad = async (propiedad: Propiedad) => {
+    const session = await getSession();
+    const response = await axios.post(`${process.env.URL}/api/users/administrador/propiedades`, propiedad)
+    const status = response.status;
+    return status;
+}
+
+export const deletePropiedad = async (id: number) => {
+    const session = await getSession();
+    const response = await axios.delete(`${process.env.URL}/api/users/administrador/propiedades/${id}`);
+    const data = response.data;
+    return data;
 }
