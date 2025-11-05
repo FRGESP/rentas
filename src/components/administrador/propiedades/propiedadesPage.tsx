@@ -5,11 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Home, Building, Store, Search, Trash2 } from "lucide-react";
 import AddModalPropiedades from "./addModalPropiedades";
 import UpdateModalPropiedad from "./updateModalPropiedades";
+import { useRouter } from 'next/navigation';
+
 
 
 function PropiedadesPage() {
 
     const { toast } = useToast();
+    const router = useRouter();
 
     interface Propiedad {
         IdPropiedad: number;
@@ -60,7 +63,7 @@ function PropiedadesPage() {
             } catch (error) {
                 toast({
                     title: "Error",
-                    description: "No se pudo eliminar el Cliente",
+                    description: "No se pudo eliminar la propiedad",
                     variant: "destructive",
                 });
             }
@@ -87,7 +90,7 @@ function PropiedadesPage() {
     return (
         <div className="w-full h-full flex flex-col items-center justify-center p-[2%] 2xl:max-w-[90%] 2xl:mx-auto">
 
-            <h1 className="text-4xl font-bold mb-10">Propiedades</h1>
+            <h1 className="text-4xl font-bold mb-6">Propiedades</h1>
 
             <div className="w-[70%] flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
                 {/* Campo de búsqueda */}
@@ -198,7 +201,7 @@ function PropiedadesPage() {
                             </div>
 
                             <div className="w-full mt-auto pt-3">
-                                <button className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
+                                <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/propiedades`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
                                     Ver detalles
                                 </button>
                                 <UpdateModalPropiedad IdPropiedad={p.IdPropiedad} onGuardado={() => fetchPropiedades()} />

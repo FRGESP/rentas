@@ -1,19 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import DireccionForm from "@/components/ui/direccionForm";
-import { addPropiedad } from "@/actions";
+import { addUnidad } from "@/actions";
 
 interface AddModalProps {
     onGuardado: () => void;
+    propiedadProp: number;
 }
 
-function AddModalPropiedades({ onGuardado }: AddModalProps) {
+function AddModalUnidades({ onGuardado, propiedadProp }: AddModalProps) {
     const { toast } = useToast();
-    const router = useRouter();
 
     //Controla el estado del modal
     const [isOpen, setIsOpen] = useState(false);
@@ -24,61 +22,8 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
     //Guarda la informacion del input
     const [inputValue, setInputValue] = useState({
         nombre: "",
-        tipo: "",
-        codigo: "",
-        calle: "",
-        colonia: "",
     });
 
-    //Empieza las funciones del componente direccion
-
-    //Bandera para revisar si es necesario verificar los campos de la direccion
-    const [isRequired, setIsRequired] = useState(false);
-
-    //Funcion para guardar la direccion 
-    const saveDireccion = (codigo: string, colonia: string, calle: string, isRequiredPar: boolean) => {
-        setInputValue({
-            ...inputValue,
-            codigo: codigo,
-            colonia: colonia,
-            calle: calle,
-        });
-
-        if (isRequiredPar) {
-            setIsRequired(true);
-        }
-        // setIsRequired(true);
-        console.log(isRequired)
-
-    }
-    //Funcion para verificar los campos de la direccion
-    const verfificarCampos = () => {
-        const newErrors: Record<string, string> = {};
-        Object.entries(inputValue).forEach(([Key, value]) => {
-            if (Key === "codigo" || Key === "calle" || Key === "colonia") {
-                if (value.trim() === "") {
-                    newErrors[Key] = "Ingrese una dirección válida y completa";
-                } else {
-                    setErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors[Key];
-                        return newErrors;
-                    });
-                }
-            } else {
-                newErrors[Key] = errors[Key];
-            }
-        })
-        setErrors(newErrors);
-    }
-
-    useEffect(() => {
-        if (isRequired) {
-            verfificarCampos();
-        }
-    }, [inputValue])
-
-    //Terminan las funciones del componente direccion
 
     //Controla el cambio del input
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -106,15 +51,10 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
     //Funcion para abrir el modal
     const openModal = () => {
         setIsOpen(true);
-        setIsRequired(false); // Necesario para el formulario de direccion
         // Reiniciar los valores de los inputs y errores al abrir el modal
         setErrors({});
         setInputValue({
             nombre: "",
-            tipo: "",
-            codigo: "",
-            calle: "",
-            colonia: "",
         });
     };
     //Funcion para cerrar el modal
@@ -145,21 +85,24 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length == 0) {
-            const response = await addPropiedad(inputValue);
+            const response = await addUnidad({
+                Nombre: inputValue.nombre,
+                Propiedad: propiedadProp || 0,
+            });
             console.log(response);
             if (response === 200) {
                 setIsOpen(false);
 
                 toast({
-                    title: "Propiedad agregada",
-                    description: "La propiedad ha sido agregada correctamente",
+                    title: "Unidad agregada",
+                    description: "La unidad ha sido agregada correctamente",
                     variant: "success",
                 });
                 onGuardado();
             } else {
                 toast({
                     title: "Error",
-                    description: "No se pudo agregar la propiedad",
+                    description: "No se pudo agregar la unidad",
                     variant: "destructive",
                 });
             }
@@ -189,7 +132,7 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
                             {/* Header del modal */}
                             <div className="relative px-6 py-5 border-b border-gray-200">
                                 <h2 className="font-bold text-2xl text-gray-800 text-center pr-8">
-                                    Agregar Propiedad
+                                    Agregar Unidad
                                 </h2>
                                 <button
                                     onClick={closeModal}
@@ -208,7 +151,7 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
                                         htmlFor="nombre"
                                         className="block font-semibold"
                                     >
-                                        Nombre de la propiedad
+                                        Nombre de la unidad
                                     </label>
                                     <input
                                         type="text"
@@ -219,60 +162,13 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
                                             }`}
                                         autoFocus
                                         name="nombre"
-                                        placeholder="Ej: Departamentos Pípila"
+                                        placeholder="Ej: Departamento 1"
                                         onChange={handleChange}
                                     />
                                     {errors["nombre"] && (
                                         <p className="text-sm text-red-500 flex items-center gap-1">
                                             <span>⚠</span>
                                             <span>{errors["nombre"]}</span>
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Campo Tipo */}
-                                <div className="space-y-2">
-                                    <label className="block font-semibold text-black" htmlFor="tipo">
-                                        Tipo de propiedad
-                                    </label>
-                                    <select
-                                        onChange={handleChange}
-                                        name="tipo"
-                                        id="tipo"
-                                        defaultValue={'Default'}
-                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${errors["tipo"]
-                                                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                                                : "border-gray-400"
-                                            }`}
-                                    >
-                                        <option value="Default" disabled hidden>Seleccione el tipo de propiedad</option>
-                                        <option value="Casa">Casa</option>
-                                        <option value="Edificio">Edificio</option>
-                                        <option value="Local">Local</option>
-                                    </select>
-                                    {errors["tipo"] && (
-                                        <p className="text-sm text-red-500 flex items-center gap-1">
-                                            <span>⚠</span>
-                                            <span>{errors["tipo"]}</span>
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Campo Dirección */}
-                                <div className="space-y-2">
-                                    <label className="block font-semibold text-black">
-                                        Dirección
-                                    </label>
-                                    <div className={`rounded-lg border-2 transition-all duration-200 ${errors["codigo"]
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                        } p-4 bg-gray-50`}>
-                                        <DireccionForm action={saveDireccion} />
-                                    </div>
-                                    {errors["codigo"] && (
-                                        <p className="text-sm text-red-500 flex items-center gap-1">
-                                            <span>⚠</span>
-                                            <span>{errors["codigo"]}</span>
                                         </p>
                                     )}
                                 </div>
@@ -290,7 +186,7 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
                                     onClick={handleSubmit}
                                     className="px-6 py-2.5 font-medium text-white bg-navy rounded-lg hover:bg-navyhover transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none"
                                 >
-                                    Agregar Propiedad
+                                    Agregar Unidad
                                 </button>
                             </div>
                         </div>
@@ -301,4 +197,4 @@ function AddModalPropiedades({ onGuardado }: AddModalProps) {
     );
 }
 
-export default AddModalPropiedades;
+export default AddModalUnidades;

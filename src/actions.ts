@@ -26,6 +26,10 @@ interface Propiedad {
     calle: string;
     colonia: string;
 }
+interface Unidad {
+    Nombre: string;
+    Propiedad: number;
+}
 
 export const getSession = async () => {
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
@@ -129,15 +133,32 @@ export const getPropiedades = async () => {
 }
 
 export const addPropiedad = async (propiedad: Propiedad) => {
-    const session = await getSession();
     const response = await axios.post(`${process.env.URL}/api/users/administrador/propiedades`, propiedad)
     const status = response.status;
     return status;
 }
 
 export const deletePropiedad = async (id: number) => {
-    const session = await getSession();
     const response = await axios.delete(`${process.env.URL}/api/users/administrador/propiedades/${id}`);
     const data = response.data;
     return data;
+}
+
+//Unidades
+export const getUnidades = async (propId: number) => {
+    const response = await axios.get(`${process.env.URL}/api/users/administrador/propiedades/unidades/${propId}`);
+    const data = response.data;
+    return data;
+}
+
+export const deleteUnidad = async (id: number) => {
+    const response = await axios.delete(`${process.env.URL}/api/users/administrador/propiedades/unidades/${id}`);
+    const data = response.data;
+    return data;
+}
+
+export const addUnidad = async (unidad: Unidad) => {
+    const response = await axios.post(`${process.env.URL}/api/users/administrador/propiedades/unidades`, unidad)
+    const status = response.status;
+    return status;
 }
