@@ -277,6 +277,7 @@ function UpdateModal({ IdEmpleado, onGuardado }: UpdateModalProps) {
                                         name="Telefono"
                                         onChange={handleChange}
                                         defaultValue={empleado?.Telefono}
+                                        onWheel={(e) => e.currentTarget.blur()}
                                     />
                                     {errors["Telefono"] && (
                                         <p className="text-sm text-red-500 flex items-center gap-1">

@@ -6,6 +6,7 @@ import { Home, Building, Store, Search, Trash2 } from "lucide-react";
 import AddModalPropiedades from "./addModalPropiedades";
 import UpdateModalPropiedad from "./updateModalPropiedades";
 import { useRouter } from 'next/navigation';
+import AddModalContrato from "@/components/administrador/contratos/contratoForm";
 
 
 
@@ -101,13 +102,13 @@ function PropiedadesPage() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre o dirección..."
-                        className="w-full border rounded-lg py-2 px-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        className="w-full rounded-lg py-3 px-4 border border-gray-100 text-base shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                     />
                 </form>
 
                 {/* Filtro de tipo */}
                 <select
-                    className="h-10 min-w-[160px] rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="h-10 min-w-[160px] rounded-lg border border-gray-200 bg-white px-6 text-sm shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     value={tipoFilter}
                     onChange={(e) => setTipoFilter(e.target.value)}
                 >
@@ -125,7 +126,7 @@ function PropiedadesPage() {
             {filtered.length > 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4 w-full'>
                     {filtered.map((p) => (
-                        <div key={p.IdPropiedad} className='border rounded-lg p-4 hover:shadow-sm flex flex-col h-full relative'>
+                        <div key={p.IdPropiedad} className=' rounded-lg p-4 shadow-lg flex flex-col h-full relative'>
                             {/* Botón de eliminar en la esquina superior derecha */}
                             <button
                                 className="absolute top-1.5 right-3 p-2 rounded-full hover:bg-red-50 transition-colors group"
@@ -201,9 +202,13 @@ function PropiedadesPage() {
                             </div>
 
                             <div className="w-full mt-auto pt-3">
-                                <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/propiedades`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
-                                    Ver detalles
+                                {p.Tipo == "Edificio" || p.Ocupados > 0 ? (
+                                    <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/propiedades`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
+                                    Ver detalles 
                                 </button>
+                                ) : (
+                                    <AddModalContrato propiedadProp={p.IdPropiedad} unidadProp={null} onGuardado={() => fetchPropiedades()} />
+                                )}
                                 <UpdateModalPropiedad IdPropiedad={p.IdPropiedad} onGuardado={() => fetchPropiedades()} />
                             </div>
 

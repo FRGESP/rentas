@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Home, Trash2, Key } from "lucide-react";
 import AddModalUnidades from "./addModalUnidad";
 import UpdateModalUnidad from "./updateModalUnidad";
-// import UpdateModalUnidad from "@/components/administrador/Unidades/updateModalUnidades";
+import AddModalContrato from "@/components/administrador/contratos/contratoForm";
 import { useRouter } from 'next/navigation';
 
 interface UnidadPageProps {
@@ -23,6 +23,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
         Inquilino: String;
         Renta: String;
         FechaInicio: String;
+        PagosVencidos: number;
     }
 
     const [Unidades, setUnidades] = useState<Unidad[]>([]);
@@ -103,7 +104,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre o dirección..."
-                        className="w-full border rounded-lg py-2 px-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        className="w-full rounded-lg py-3 px-4 text-base shadow-lg border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                     />
                 </form>
                 {propiedad == null ? null : <AddModalUnidades onGuardado={() => fetchUnidades()} propiedadProp={IdPropiedadProp} />}
@@ -112,7 +113,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
             {filtered.length > 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 gap-4 w-full'>
                     {filtered.map((p) => (
-                        <div key={p.IdUnidad} className='border col-span-2 rounded-lg p-4 hover:shadow-sm flex flex-col h-full relative'>
+                        <div key={p.IdUnidad} className='col-span-2 rounded-lg p-4 shadow-lg flex flex-col h-full relative'>
                             {/* Botón de eliminar en la esquina superior derecha */}
                             <button
                                 className="absolute top-1.5 right-3 p-2 rounded-full hover:bg-red-50 transition-colors group"
@@ -136,32 +137,43 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
 
 
                             {p.Inquilino != null ? (
-                                <div className={`mt-3 text-sm grid grid-cols-2 gap-y-1`}>
-                                    <span className="text-black">Inquilino</span>
-                                    <span className="text-right font-medium">{p.Inquilino}</span>
-                                    <span className="text-black">Renta Mensual</span>
-                                    <span className="text-right font-medium">{p.Renta}</span>
-                                    <span className="text-black">Fecha de Inicio</span>
-                                    <span className="text-right font-medium">{p.FechaInicio}</span>
+                                <div className="flex flex-col h-full">
+                                    <div className={`mt-3 grid grid-cols-2 gap-y-2 items-center`}>
+                                        <span className="text-black">Inquilino</span>
+                                        <span className="text-right font-medium">{p.Inquilino}</span>
+                                        <span className="text-black">Renta Mensual</span>
+                                        <span className="text-right font-medium">{p.Renta}</span>
+                                        <span className="text-black">Fecha de Inicio</span>
+                                        <span className="text-right font-medium">{p.FechaInicio}</span>
+                                        <span className="text-black">Pagos vencidos</span>
+                                        <span className="text-right font-medium">{p.PagosVencidos ? p.PagosVencidos : 0}</span>
+                                    </div>
+                                    <div className="w-full mt-auto pt-3">
+                                        <button onClick={() => router.push(`/users/administrador/Unidades/${p.IdUnidad}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
+                                            Ver detalles
+                                        </button>
+                                        <UpdateModalUnidad IdUnidad={p.IdUnidad} onGuardado={() => fetchUnidades()} />
+                                    </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center mt-4 border-2 border-green-200 rounded-lg p-4">
-                                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                <div className="flex flex-col h-full">
+                                    <div className="flex flex-col items-center justify-center mt-4 border-2 border-green-200 rounded-lg p-4">
+                                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-lg font-semibold text-green-600">Disponible</span>
+                                        <span className="text-xs text-gray-500 mt-1">Listo para rentar</span>
                                     </div>
-                                    <span className="text-lg font-semibold text-green-600">Disponible</span>
-                                    <span className="text-xs text-gray-500 mt-1">Listo para rentar</span>
+                                    <div className="w-full mt-auto pt-3">
+                                        <AddModalContrato propiedadProp={null} unidadProp={p.IdUnidad} onGuardado={() => fetchUnidades()} />
+                                        <UpdateModalUnidad IdUnidad={p.IdUnidad} onGuardado={() => fetchUnidades()} />
+                                    </div>
                                 </div>
                             )}
 
-                            <div className="w-full mt-auto pt-3">
-                                <button onClick={() => router.push(`/users/administrador/Unidades/${p.IdUnidad}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
-                                    Ver detalles
-                                </button>
-                                <UpdateModalUnidad IdUnidad={p.IdUnidad} onGuardado={() => fetchUnidades()} />
-                            </div>
+
 
                         </div>
                     ))}

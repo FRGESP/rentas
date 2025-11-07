@@ -73,14 +73,6 @@ function AddModalUnidades({ onGuardado, propiedadProp }: AddModalProps) {
             if (value.trim() === "") {
                 newErrors[Key] = "Este campo es obligatorio"
             }
-            // Necesario para el formulario de direccion
-            if (value.trim() === "") {
-                if (Key === "codigo" || Key === "calle" || Key === "colonia") {
-                    newErrors["codigo"] = "Ingrese una dirección válida y completa";
-                } else {
-                    newErrors[Key] = "Este campo es obligatorio"
-                }
-            }
         })
         setErrors(newErrors);
 

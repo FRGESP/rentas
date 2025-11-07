@@ -58,7 +58,7 @@ const itemsAdmin = [
     title: "Propiedades",
     url: "/users/administrador/propiedades",
     icon: "/assets/administrador/Propiedades.png",
-    iconBold: "/assets/administrador/PropiedadesVerde.png",
+    iconBold: "/assets/administrador/PropiedadesAzul.png",
   },
 ];
 

@@ -31,6 +31,19 @@ interface Unidad {
     Propiedad: number;
 }
 
+interface Contrato {
+    nombre: string;
+    apellidoPaterno: string;
+    apellidoMaterno: string;
+    telefono: string;
+    inmueble: string;
+    propBoolean: string;
+    monto: string;
+    deposito: string;
+    plazo: string;
+    diaCobro: string;
+}
+
 export const getSession = async () => {
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
 
@@ -159,6 +172,13 @@ export const deleteUnidad = async (id: number) => {
 
 export const addUnidad = async (unidad: Unidad) => {
     const response = await axios.post(`${process.env.URL}/api/users/administrador/propiedades/unidades`, unidad)
+    const status = response.status;
+    return status;
+}
+
+//Contratos
+export const addContrato = async (contrato: Contrato) => {
+    const response = await axios.post(`${process.env.URL}/api/users/administrador/contratos`, contrato)
     const status = response.status;
     return status;
 }

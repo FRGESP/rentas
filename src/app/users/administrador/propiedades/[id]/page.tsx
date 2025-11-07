@@ -9,7 +9,7 @@ interface UnidadPageProps {
 
 function UnidadPage({ params }: UnidadPageProps) {
   return (
-    <div>
+    <div className='bg-gray-50 min-h-[100vh]'>
     <UnidadesPage IdPropiedadProp={Number(params.id)} />
     </div>
   )

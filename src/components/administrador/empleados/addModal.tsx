@@ -253,6 +253,7 @@ function AddModal({onGuardado}: AddModalProps) {
                     name="telefono"
                     placeholder="Ej: 4771234567"
                     onChange={handleChange}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                   {errors["telefono"] && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
