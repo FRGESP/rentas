@@ -124,15 +124,15 @@ function AddModalContrato({ onGuardado, propiedadProp, unidadProp }: AddModalPro
                 if (response === 200) {
                     setIsOpen(false);
                     toast({
-                        title: "Unidad agregada",
-                        description: "La unidad ha sido agregada correctamente",
+                        title: "Contrato creado",
+                        description: "El contrato ha sido creado correctamente",
                         variant: "success",
                     });
                     onGuardado();
                 } else {
                     toast({
                         title: "Error",
-                        description: "No se pudo agregar la unidad",
+                        description: "No se pudo crear el contrato",
                         variant: "destructive",
                     });
                 }
@@ -140,7 +140,7 @@ function AddModalContrato({ onGuardado, propiedadProp, unidadProp }: AddModalPro
             } catch (error) {
                 console.error("Error adding contract:", error);
                 toast({
-                    title: "Error",
+                    title: "Error Server",
                     description: "No se pudo crear el contrato",
                     variant: "destructive",
                 });
@@ -359,7 +359,7 @@ function AddModalContrato({ onGuardado, propiedadProp, unidadProp }: AddModalPro
                                             : "border-gray-400"
                                             }`}
                                         name="plazo"
-                                        placeholder="Ej: 2000"
+                                        placeholder="Ej: 6"
                                         onChange={handleChange}
                                         onWheel={(e) => e.currentTarget.blur()}
                                     />

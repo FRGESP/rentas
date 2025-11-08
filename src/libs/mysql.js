@@ -1,4 +1,8 @@
+import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
+
+// Carga las variables del archivo .env (en la raíz del proyecto)
+dotenv.config({ path: '.env' });
 
 export const conn = mysql.createPool({
   host: process.env.SQL_HOST,

@@ -128,6 +128,7 @@ CREATE TABLE CONTRATO(
 CREATE TABLE CARGOFIJO(
     IdCargoFijo INT AUTO_INCREMENT,
     DiaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+    Descripcion VARCHAR(255) NOT NULL,
     Monto DECIMAL(10,2) NOT NULL,
     DiaCobro INT NOT NULL ,
     Plazo INT NOT NULL  DEFAULT -1,
@@ -525,7 +526,7 @@ CREATE PROCEDURE SP_REGISTRARCONTRATO(IN NOMBREIN VARCHAR(300), IN APELLIDOPAT V
         ELSE
             SET INTPROP = (SELECT U.IdUnidad FROM UNIDAD AS U WHERE U.IdUnidad = INMUEBLE);
             SET INTUNIDAD = INMUEBLE;
-            SET NOMBREINMUEBLE = (SELECT U.Nombre FROM UNIDAD AS U WHERE U.IdUnidad = INMUEBLE);
+            SET NOMBREINMUEBLE = (SELECT CONCAT(P2.Nombre, ' ', U.Nombre) FROM UNIDAD AS U INNER JOIN PROPIEDAD P2 on U.Propiedad = P2.IdPropiedad WHERE U.IdUnidad = INMUEBLE);
         end if;
 
         CALL SP_REGISTRARPERSONA(NOMBREIN, APELLIDOPAT, APELLIDOMAT, TELEFONOIN, 1, IDPERVAR);
@@ -534,67 +535,66 @@ CREATE PROCEDURE SP_REGISTRARCONTRATO(IN NOMBREIN VARCHAR(300), IN APELLIDOPAT V
 
         SET IDCONTRATOVAR = (SELECT LAST_INSERT_ID());
 
-        INSERT INTO CARGOFIJO (Monto, DiaCobro, IdContrato, Estado) VALUES (MONTOIN,DIACOBROIN, IDCONTRATOVAR, 'Perpetuo');
+        INSERT INTO CARGOFIJO (Descripcion, Monto, DiaCobro, IdContrato, Estado) VALUES (CONCAT('Renta ', NOMBREINMUEBLE),MONTOIN,DIACOBROIN, IDCONTRATOVAR, 'Perpetuo');
 
         SET FECHAINICIOVAR = (DATE_ADD(DATE_FORMAT(CURDATE(), CONCAT('%Y-%m-', LPAD(DIACOBROIN, 2, '0'))), INTERVAL 1 MONTH));
         SET FECHADESC = (DATE_FORMAT(FECHAINICIOVAR, '%d/%m/%Y'));
         SET FECHALIMITEVAR = (DATE_ADD(FECHAINICIOVAR, INTERVAL 2 WEEK));
 
-        INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, Estado, SaldoPendiente) VALUES (IDCONTRATOVAR, 'Fijo', (CONCAT('Renta ', FECHADESC, ' ', NOMBREINMUEBLE)), MONTOIN, FECHAINICIOVAR, FECHALIMITEVAR, 'Programado', MONTOIN);
+        -- INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, Estado, SaldoPendiente) VALUES (IDCONTRATOVAR, 'Fijo', (CONCAT('Renta ', FECHADESC, ' ', NOMBREINMUEBLE)), MONTOIN, FECHAINICIOVAR, FECHALIMITEVAR, 'Programado', MONTOIN);
 
         COMMIT;
     end;
 
-CREATE PROCEDURE SP_REGISTRARCONTRATO(
-    IN NOMBREIN VARCHAR(300),
-    IN APELLIDOPAT VARCHAR(300),
-    IN APELLIDOMAT VARCHAR(300),
-    IN TELEFONOIN VARCHAR(300),
-    IN INMUEBLE INT,
-    IN PROPBOOL INT,
-    IN MONTOIN DECIMAL(10,2),
-    IN DEPOIN DECIMAL(10,2),
-    IN PLAZOIN INT,
-    IN DIACOBROIN INT
-)
-BEGIN
-    DECLARE INTPROP, INTUNIDAD, IDPERVAR, IDCONTRATOVAR INT;
-    DECLARE NOMBREINMUEBLE, FECHADESC, FECHALIMITEVAR, FECHAINICIOVAR VARCHAR(100);
+-- ADMINISTRADOR/CRON
 
-    IF PROPBOOL = 1 THEN
-        SET INTPROP = INMUEBLE;
-        SET INTUNIDAD = NULL;
-        SET NOMBREINMUEBLE = (SELECT P.Nombre FROM PROPIEDAD AS P WHERE P.IdPropiedad = INMUEBLE);
-    ELSE
-        SET INTPROP = NULL;
-        SET INTUNIDAD = INMUEBLE;
-        SET NOMBREINMUEBLE = (SELECT U.Nombre FROM UNIDAD AS U WHERE U.IdUnidad = INMUEBLE);
-    END IF;
+DROP PROCEDURE IF EXISTS SP_ACTIVARPAGOS;
+CREATE PROCEDURE SP_ACTIVARPAGOS()
+    BEGIN
+        UPDATE CARGO SET Estado = 'Pendiente' WHERE FechaInicio = CURDATE() AND Estado = 'Programado' ;
 
-    CALL SP_REGISTRARPERSONA(NOMBREIN, APELLIDOPAT, APELLIDOMAT, TELEFONOIN, 1, IDPERVAR);
+        UPDATE CARGO SET Estado = 'Vencido' WHERE FechaVencimiento < CURDATE() AND (Estado = 'Pendiente' OR Estado = 'Parcial');
 
-    INSERT INTO CONTRATO (IdUnidad, IdPropiedad, IdPersona, MontoRenta, Deposito, Plazo)
-    VALUES (INTUNIDAD, INTPROP, IDPERVAR, MONTOIN, DEPOIN, PLAZOIN);
+        INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, SaldoPendiente) SELECT C.IdContrato, 'Fijo', (CONCAT(C.Descripcion, ' ', DATE_FORMAT(curdate(), '%d/%m/%Y'))), C.Monto, CURDATE(), (DATE_ADD(CURDATE(), INTERVAL 2 WEEK)), C.Monto FROM CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato WHERE C.DiaCobro = DAY(CURDATE()) AND (C.Estado = 'Perpetuo' OR C.Estado = 'Activo') AND ((C.Estado = 'Perpetuo' AND DATEDIFF(CURDATE(), CO.FechaCreacion) >= 30) OR C.Estado = 'Activo');
 
-    SET IDCONTRATOVAR = (SELECT LAST_INSERT_ID());
+        -- INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, SaldoPendiente) SELECT C.IdContrato, 'Fijo', (CONCAT(C.Descripcion, ' ', DATE_FORMAT(curdate(), '%d/%m/%Y'), ' ', PR.Nombre)), C.Monto, CURDATE(), (DATE_ADD(CURDATE(), INTERVAL 2 WEEK)), C.Monto FROM CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS PR ON CO.IdPropiedad = PR.IdPropiedad WHERE C.DiaCobro = DAY(CURDATE()) AND CO.IdUnidad IS NULL AND (C.Estado = 'Perpetuo' OR C.Estado = 'Activo') AND ((C.Estado = 'Perpetuo' AND DATEDIFF(CURDATE(), CO.FechaCreacion) >= 30) OR C.Estado = 'Activo');
 
-    INSERT INTO CARGOFIJO (Monto, DiaCobro, IdContrato, Estado)
-    VALUES (MONTOIN, DIACOBROIN, IDCONTRATOVAR, 'Perpetuo');
+        UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato SET C.PlazoTranscurrido = (C.PlazoTranscurrido + 1) WHERE C.DiaCobro = DAY(CURDATE()) AND  (C.Estado = 'Perpetuo' OR C.Estado = 'Activo') AND ((C.Estado = 'Perpetuo' AND DATEDIFF(CURDATE(), CO.FechaCreacion) >= 30) OR C.Estado = 'Activo');
 
-    SET FECHAINICIOVAR = (DATE_ADD(DATE_FORMAT(CURDATE(), CONCAT('%Y-%m-', LPAD(DIACOBROIN, 2, '0'))), INTERVAL 1 MONTH));
-    SET FECHADESC = (DATE_FORMAT(FECHAINICIOVAR, '%d/%m/%Y'));
-    SET FECHALIMITEVAR = (DATE_ADD(FECHAINICIOVAR, INTERVAL 2 WEEK));
+        -- UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS PR ON CO.IdPropiedad = PR.IdPropiedad SET C.PlazoTranscurrido = (C.PlazoTranscurrido + 1) WHERE C.DiaCobro = DAY(CURDATE()) AND CO.IdUnidad IS NULL AND (C.Estado = 'Perpetuo' OR C.Estado = 'Activo') AND ((C.Estado = 'Perpetuo' AND DATEDIFF(CURDATE(), CO.FechaCreacion) >= 30) OR C.Estado = 'Activo');
 
-    INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, Estado, SaldoPendiente)
-    VALUES (IDCONTRATOVAR, 'Fijo', CONCAT('Renta ', FECHADESC, ' ', NOMBREINMUEBLE), MONTOIN, FECHAINICIOVAR, FECHALIMITEVAR, 'Programado', MONTOIN);
-END;
+        UPDATE CARGOFIJO SET Estado = 'Completado' WHERE PlazoTranscurrido = Plazo;
 
+    end;
+
+SELECT * FROM CARGOFIJO;
+INSERT INTO CARGOFIJO ( Descripcion, Monto, DiaCobro, Plazo, PlazoTranscurrido, IdContrato, Estado) VALUES ('Test1',500, 8, 3,0, 1, 'Activo');
+UPDATE CARGOFIJO SET DiaCobro = 8 WHERE IdCargoFijo = 1;
+SELECT * FROM CONTRATO;
+SELECT DATE_SUB(CURDATE(), INTERVAL 2 WEEK);
+SELECT * FROM CARGO;
+
+SELECT * FROM CONTRATO;
+
+UPDATE CARGOFIJO SET DiaCreacion = SUBDATE(CURDATE(), INTERVAL 2 MONTH ) WHERE IdCargoFijo = 1;
+
+UPDATE CONTRATO SET FechaCreacion = SUBDATE(CURDATE(), INTERVAL 2 MONTH ) WHERE IdContrato = 2;
+
+UPDATE CARGO SET FechaVencimiento = DATE_SUB(CURDATE(), INTERVAL 1 WEEK) WHERE IdCargo = 5;
+
+INSERT INTO CARGO (IdContrato, TipoCargo, Descripcion, MontoTotal, FechaInicio, FechaVencimiento, Estado, SaldoPendiente) VALUES (1, 'Variable', 'Luz', 600, curdate(), adddate(curdate(), interval 2 week ), 'Programado', 600);
+
+CALL SP_ACTIVARPAGOS();
+
+SELECT CURDATE();
+
+SELECT DATEDIFF(CURDATE(), SUBDATE(CURDATE(), INTERVAL 2 MONTH )) >= 30
 -- DATOS INICIALES
 
 SELECT @@global.time_zone, @@session.time_zone;
 SET time_zone = 'America/Mexico_City';
     SELECT curdate();
-SELECT * FROM CONTRATO;
+SELECT * FROM CARGO AS C WHERE C.FechaVencimiento > CURDATE();
 
 SELECT DATE_ADD(DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-15'), INTERVAL 1 MONTH), INTERVAL 2 WEEK);
 
@@ -630,7 +630,7 @@ CALL SP_ADDUNIDAD('Departamento 6', 1);
 CALL SP_ADDUNIDAD('Departamento 7', 1);
 CALL SP_ADDUNIDAD('Departamento 8', 1);
 
-CALL SP_ADDPROPIEDAD('Departamentos Pipila', 'Casa', 38800, 72856, 'Pipila 706');
+CALL SP_ADDPROPIEDAD('Casa Puebla', 'Casa', 38800, 72856, 'Puebla 201');
 
 
 SELECT * FROM DIRECCION;
