@@ -25,6 +25,8 @@ function PropiedadesPage() {
         Inquilino: String;
         Renta: String;
         FechaInicio: String;
+        PagosVencidos: number;
+        Contrato: number;
 
     }
 
@@ -174,6 +176,8 @@ function PropiedadesPage() {
                                         <span className="text-right font-medium">{p.Renta}</span>
                                         <span className="text-black">Fecha de Inicio</span>
                                         <span className="text-right font-medium">{p.FechaInicio}</span>
+                                        <span className="text-black">Cargos vencidos</span>
+                                        <span className="text-right font-medium">{p.PagosVencidos ? p.PagosVencidos : 0}</span>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center mt-4 border-2 border-green-200 rounded-lg p-4">
@@ -203,7 +207,7 @@ function PropiedadesPage() {
 
                             <div className="w-full mt-auto pt-3">
                                 {p.Tipo == "Edificio" || p.Ocupados > 0 ? (
-                                    <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/propiedades`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
+                                    <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/detalle/${p.Contrato}`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
                                     Ver detalles 
                                 </button>
                                 ) : (

@@ -19,5 +19,5 @@ export const sessionOptions: SessionOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
     },
-    ttl: 60 * 60 * 1 * 1
+    ttl: 60 * 60 * 1 * 24, // 1 day
 }

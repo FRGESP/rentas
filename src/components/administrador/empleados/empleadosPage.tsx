@@ -32,8 +32,17 @@ function EmpleadosPage() {
     const [update, setUpdate] = useState(false);
 
     const getEmpleados = async () => {
-        const data = await getEmpleadosAction();
-        setEmpleados(data);
+        try {
+            const data = await getEmpleadosAction();
+            setEmpleados(data);
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error al cargar empleados",
+                description: "Intenta de nuevo más tarde.",
+                variant: "destructive",
+            });
+        }
     }
 
     const handleChange = (e: any) => {

@@ -24,6 +24,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
         Renta: String;
         FechaInicio: String;
         PagosVencidos: number;
+        Contrato: number;
     }
 
     const [Unidades, setUnidades] = useState<Unidad[]>([]);
@@ -145,11 +146,11 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
                                         <span className="text-right font-medium">{p.Renta}</span>
                                         <span className="text-black">Fecha de Inicio</span>
                                         <span className="text-right font-medium">{p.FechaInicio}</span>
-                                        <span className="text-black">Pagos vencidos</span>
+                                        <span className="text-black">Cargos vencidos</span>
                                         <span className="text-right font-medium">{p.PagosVencidos ? p.PagosVencidos : 0}</span>
                                     </div>
                                     <div className="w-full mt-auto pt-3">
-                                        <button onClick={() => router.push(`/users/administrador/Unidades/${p.IdUnidad}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
+                                        <button onClick={() => router.push(`/users/administrador/detalle/${p.Contrato}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
                                             Ver detalles
                                         </button>
                                         <UpdateModalUnidad IdUnidad={p.IdUnidad} onGuardado={() => fetchUnidades()} />

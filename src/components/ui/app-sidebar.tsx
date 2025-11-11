@@ -49,16 +49,16 @@ const itemsAlmacen = [
 
 const itemsAdmin = [
   {
-    title: "Empleados",
-    url: "/users/administrador/empleados",
-    icon: "/assets/administrador/Empleados.png",
-    iconBold: "/assets/administrador/EmpleadosVerde.png",
-  },
-  {
     title: "Propiedades",
     url: "/users/administrador/propiedades",
     icon: "/assets/administrador/Propiedades.png",
     iconBold: "/assets/administrador/PropiedadesAzul.png",
+  },
+  {
+    title: "Empleados",
+    url: "/users/administrador/empleados",
+    icon: "/assets/administrador/Empleados.png",
+    iconBold: "/assets/administrador/EmpleadosVerde.png",
   },
 ];
 
@@ -110,7 +110,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild className="my-2 hover:bg-[#ececec] mb-4 py-3">
                     <Link href={item.url}>
                       <img src={`${pathname == item.url ? item.iconBold : item.icon}`} alt="" className="w-7 h-auto" />
-                      <span className={`${pathname == item.url ? 'text-acento font-bold' : ''} text-lg`} >{item.title}</span>
+                      <span className={`${pathname == item.url ? 'text-navy font-bold' : ''} text-lg`} >{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

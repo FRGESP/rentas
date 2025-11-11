@@ -44,6 +44,17 @@ interface Contrato {
     diaCobro: string;
 }
 
+interface Cargo {
+    descripcion: string;
+    monto: string;
+    tipo: string;
+    diaCobro: number;
+    plazo: number;
+    fechaInicio: string;
+    fechaVencimiento: string;
+}
+
+
 export const getSession = async () => {
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
 
@@ -84,7 +95,7 @@ export const roles = async () => {
             redirect("/users/cajero");
             break;
         case 3:
-            redirect("/users/administrador/empleados");
+            redirect("/users/administrador/propiedades");
             break;
         default:
             console.log("No se encontró el rol");
@@ -181,4 +192,35 @@ export const addContrato = async (contrato: Contrato) => {
     const response = await axios.post(`${process.env.URL}/api/users/administrador/contratos`, contrato)
     const status = response.status;
     return status;
+}
+
+//Detalle Contrato
+export const getContratoDetalle = async (id: number) => {
+    const response = await axios.get(`${process.env.URL}/api/users/administrador/detalleContratos/${id}`);
+    const data = response.data;
+    return data;
+}
+
+export const deleteCargoFijo = async (id: number) => {
+    const response = await axios.delete(`${process.env.URL}/api/users/administrador/detalleContratos/cargofijo/${id}`);
+    const data = response.data;
+    return data;
+}
+
+export const addCargo = async (cargo: Cargo, idContrato: number) => {
+    const response = await axios.post(`${process.env.URL}/api/users/administrador/detalleContratos/cargofijo/${idContrato}`, cargo)
+    const status = response.status;
+    return status;
+}
+
+export const deleteCargo = async (id: number) => {
+    const response = await axios.delete(`${process.env.URL}/api/users/administrador/detalleContratos/cargo/${id}`);
+    const data = response.data;
+    return data;
+}
+
+export const finalizarContrato = async (id: number) => {
+    const response = await axios.delete(`${process.env.URL}/api/users/administrador/detalleContratos/${id}`);
+    const data = response.data;
+    return data;
 }
