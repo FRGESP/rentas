@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, X } from "lucide-react";
+import { Plus, User, X } from "lucide-react";
 import axios from "axios";
 import { addEmpleado } from "@/actions";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ interface AddModalProps {
   onGuardado: () => void;
 }
 
-function AddModal({onGuardado}: AddModalProps) {
+function AddModal({ onGuardado }: AddModalProps) {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -96,7 +96,7 @@ function AddModal({onGuardado}: AddModalProps) {
       console.log(response);
       if (response === 200) {
         setIsOpen(false);
-        
+
         toast({
           title: "Empleado agregado",
           description: "El empleado ha sido agregado correctamente",
@@ -119,31 +119,33 @@ function AddModal({onGuardado}: AddModalProps) {
         <Plus
           className="text-acento stroke-[5]"
           size={45}
-          
+
         />
       </button>
 
       {isOpen && (
         <div className="flex items-center justify-center">
-          <div 
+          <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-in fade-in duration-200"
             onClick={closeModal}
           >
-            <div 
+            <div
               className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header del modal */}
-              <div className="relative px-6 py-5 border-b border-gray-200">
-                <h2 className="font-bold text-2xl text-gray-800 text-center pr-8">
-                  Agregar Empleado
-                </h2>
-                <button 
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-navy to-blue-900 text-white rounded-t-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                    <User className="w-6 h-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Agregar Empleado</h2>
+                </div>
+                <button
                   onClick={closeModal}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-all duration-200 hover:rotate-90"
-                  aria-label="Cerrar modal"
+                  className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors"
                 >
-                  <X size={20} />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
@@ -160,11 +162,10 @@ function AddModal({onGuardado}: AddModalProps) {
                   <input
                     type="text"
                     id="nombre"
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
-                      errors["nombre"] 
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["nombre"]
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                         : "border-gray-400"
-                    }`}
+                      }`}
                     autoFocus
                     name="nombre"
                     placeholder="Ej: Juan"
@@ -189,11 +190,10 @@ function AddModal({onGuardado}: AddModalProps) {
                   <input
                     type="text"
                     id="apellidoPat"
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
-                      errors["apellidoPat"] 
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["apellidoPat"]
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                         : "border-gray-400"
-                    }`}
+                      }`}
                     name="apellidoPat"
                     placeholder="Ej: Pérez"
                     onChange={handleChange}
@@ -217,11 +217,10 @@ function AddModal({onGuardado}: AddModalProps) {
                   <input
                     type="text"
                     id="apellidoMat"
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
-                      errors["apellidoMat"] 
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["apellidoMat"]
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                         : "border-gray-400"
-                    }`}
+                      }`}
                     name="apellidoMat"
                     placeholder="Ej: García"
                     onChange={handleChange}
@@ -245,11 +244,10 @@ function AddModal({onGuardado}: AddModalProps) {
                   <input
                     type="number"
                     id="telefono"
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
-                      errors["telefono"] 
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["telefono"]
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                         : "border-gray-400"
-                    }`}
+                      }`}
                     name="telefono"
                     placeholder="Ej: 4771234567"
                     onChange={handleChange}
@@ -274,11 +272,10 @@ function AddModal({onGuardado}: AddModalProps) {
                   <input
                     type="text"
                     id="password"
-                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
-                      errors["password"] 
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["password"]
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                         : "border-gray-400"
-                    }`}
+                      }`}
                     name="password"
                     placeholder="Ingrese la contraseña"
                     onChange={handleChange}
@@ -298,16 +295,15 @@ function AddModal({onGuardado}: AddModalProps) {
                     <label className="block font-semibold" htmlFor="rol">
                       Rol
                     </label>
-                    <select 
-                      onChange={handleChange} 
-                      name="rol" 
+                    <select
+                      onChange={handleChange}
+                      name="rol"
                       id="rol"
-                      defaultValue={'Default'} 
-                      className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${
-                        errors["rol"] 
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                      defaultValue={'Default'}
+                      className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${errors["rol"]
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                           : "border-gray-400"
-                      }`}
+                        }`}
                     >
                       <option value="Default" disabled hidden>Seleccione un Rol</option>
                       <option value="3">Administrador</option>
@@ -326,16 +322,15 @@ function AddModal({onGuardado}: AddModalProps) {
                     <label className="block font-semibold" htmlFor="estatus">
                       Estatus
                     </label>
-                    <select 
-                      onChange={handleChange} 
-                      name="estatus" 
+                    <select
+                      onChange={handleChange}
+                      name="estatus"
                       id="estatus"
-                      defaultValue={'Default'} 
-                      className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${
-                        errors["estatus"] 
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-200" 
+                      defaultValue={'Default'}
+                      className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${errors["estatus"]
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                           : "border-gray-400"
-                      }`}
+                        }`}
                     >
                       <option value="Default" disabled hidden>Seleccione un Estatus</option>
                       <option value="1">Activo</option>

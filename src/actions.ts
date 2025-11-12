@@ -224,3 +224,17 @@ export const finalizarContrato = async (id: number) => {
     const data = response.data;
     return data;
 }
+
+//Pagos
+export const getCargosPago = async () => {
+    const response = await axios.get(`${process.env.URL}/api/users/administrador/pagos`);
+    const data = response.data;
+    return data;
+}
+
+export const registrarAbono= async (data: { IdCargo: number, Monto: number }) => {
+    const session = await getSession();
+    const response = await axios.post(`${process.env.URL}/api/users/administrador/pagos/${session.userId}`, data);
+    const status = [response.status, response.data[0][0]];
+    return status;
+}

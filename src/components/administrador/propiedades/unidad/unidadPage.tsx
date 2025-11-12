@@ -151,7 +151,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
                                     </div>
                                     <div className="w-full mt-auto pt-3">
                                         <button onClick={() => router.push(`/users/administrador/detalle/${p.Contrato}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
-                                            Ver detalles
+                                            Ver detalles del contrato
                                         </button>
                                         <UpdateModalUnidad IdUnidad={p.IdUnidad} onGuardado={() => fetchUnidades()} />
                                     </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, X } from "lucide-react";
+import { Edit2, Receipt, X } from "lucide-react";
 import axios from "axios";
 
 
@@ -158,7 +158,7 @@ function UpdateCargo({ IdCargoProp, onGuardado, isOpen, setIsOpen }: UpdateCargo
         }
 
         // Verifica que el Saldo Pendiente no sea mayor al Monto Total
-        if (!pagado && inputValue.SaldoPendiente > inputValue.MontoTotal) {
+        if (!pagado && Number(inputValue.SaldoPendiente) > Number(inputValue.MontoTotal)) {
             newErrors["SaldoPendiente"] = "El saldo pendiente no puede ser mayor al monto total";
         }
 
@@ -175,6 +175,11 @@ function UpdateCargo({ IdCargoProp, onGuardado, isOpen, setIsOpen }: UpdateCargo
         //Verifica que la Fecha de Vencimiento no sea menor a la fecha actual
         if (!pagado && parseFechaLocal(inputValue.FechaVencimiento) < limpiarHora(new Date())) {
             newErrors["FechaVencimiento"] = "La fecha de vencimiento no puede ser menor a la fecha actual";
+        }
+
+        // Verifica que la fecha de vencimiento no sea la misma que la fecha de inicio
+        if (!pagado && parseFechaLocal(inputValue.FechaVencimiento) <= parseFechaLocal(inputValue.FechaInicio)) {
+            newErrors["FechaVencimiento"] = "La fecha de vencimiento no puede ser la misma que la fecha de inicio";
         }
 
         // Si no está pagado, el saldo pendiente no puede ser 0
@@ -232,16 +237,18 @@ function UpdateCargo({ IdCargoProp, onGuardado, isOpen, setIsOpen }: UpdateCargo
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header del modal */}
-                            <div className="relative px-6 py-5 border-b border-gray-200">
-                                <h2 className="font-bold text-2xl text-gray-800 text-center pr-8">
-                                    Editar Cargo
-                                </h2>
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-navy to-blue-900 text-white rounded-t-xl">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                                        <Receipt className="w-6 h-6" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">Editar Cargo</h2>
+                                </div>
                                 <button
                                     onClick={closeModal}
-                                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-all duration-200 hover:rotate-90"
-                                    aria-label="Cerrar modal"
+                                    className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors"
                                 >
-                                    <X size={20} />
+                                    <X className="w-6 h-6" />
                                 </button>
                             </div>
 

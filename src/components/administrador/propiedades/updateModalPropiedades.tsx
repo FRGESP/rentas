@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { Building, X } from "lucide-react";
 import axios from "axios";
 import DireccionForm from "@/components/ui/direccionForm";
 
@@ -193,15 +193,15 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
                     if (responseUpdate.data.RES === 1) {
                         toast({
                             title: "No se pudo actualizar el tipo de propiedad",
-                        description: "La propiedad tiene unidades activas, por lo que no se pudo actualizar su tipo.",
-                        variant: "warning",
-                    });
+                            description: "La propiedad tiene unidades activas, por lo que no se pudo actualizar su tipo.",
+                            variant: "warning",
+                        });
                     } else {
                         toast({
-                        title: "Propiedad actualizada",
-                        description: "La propiedad ha sido actualizada correctamente",
-                        variant: "success",
-                    });
+                            title: "Propiedad actualizada",
+                            description: "La propiedad ha sido actualizada correctamente",
+                            variant: "success",
+                        });
                     }
                 } else {
                     toast({
@@ -244,16 +244,18 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header del modal */}
-                            <div className="relative px-6 py-5 border-b border-gray-200">
-                                <h2 className="font-bold text-2xl text-gray-800 text-center pr-8">
-                                    Editar Propiedad
-                                </h2>
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-navy to-blue-900 text-white rounded-t-xl">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                                        <Building className="w-6 h-6" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">Editar Propiedad</h2>
+                                </div>
                                 <button
                                     onClick={closeModal}
-                                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-all duration-200 hover:rotate-90"
-                                    aria-label="Cerrar modal"
+                                    className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors"
                                 >
-                                    <X size={20} />
+                                    <X className="w-6 h-6" />
                                 </button>
                             </div>
 
@@ -297,8 +299,8 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
                                         name="Tipo"
                                         id="Tipo"
                                         className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${errors["Tipo"]
-                                                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                                                : "border-gray-400"
+                                            ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                            : "border-gray-400"
                                             }`}
                                     >
                                         <option value="Default" disabled hidden>Seleccione el tipo de propiedad</option>
@@ -320,8 +322,8 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
                                         Dirección
                                     </label>
                                     <div className={`rounded-lg border-2 transition-all duration-200 ${errors["Codigo"]
-                                            ? "border-red-500"
-                                            : "border-gray-300"
+                                        ? "border-red-500"
+                                        : "border-gray-300"
                                         } p-4 bg-gray-50`}>
                                         <DireccionForm action={saveDireccion} codigo={propiedad?.Codigo} colonia={propiedad?.Colonia} calle={propiedad?.Calle} />
                                     </div>

@@ -208,7 +208,7 @@ function PropiedadesPage() {
                             <div className="w-full mt-auto pt-3">
                                 {p.Tipo == "Edificio" || p.Ocupados > 0 ? (
                                     <button onClick={() => router.push(`${p.Tipo == 'Edificio' ? `/users/administrador/propiedades/${p.IdPropiedad}` : `/users/administrador/detalle/${p.Contrato}`}`)} className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navyhover">
-                                    Ver detalles 
+                                    {p.Tipo == 'Edificio' ? 'Ver unidades' : 'Ver detalles del contrato'} 
                                 </button>
                                 ) : (
                                     <AddModalContrato propiedadProp={p.IdPropiedad} unidadProp={null} onGuardado={() => fetchPropiedades()} />

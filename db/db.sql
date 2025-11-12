@@ -154,6 +154,17 @@ CREATE TABLE CARGO(
     CONSTRAINT FK_CARGOTOCONTRATO FOREIGN KEY (IdContrato) REFERENCES CONTRATO(IdContrato)
 );
 
+CREATE TABLE ABONO(
+    IdAbono INT AUTO_INCREMENT,
+    IdCargo INT NOT NULL,
+    Usuario INT NOT NULL,
+    Fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+    Monto DECIMAL(10,2) NOT NULL,
+    CONSTRAINT PK_ABONO PRIMARY KEY(IdAbono),
+    CONSTRAINT FK_ABONOTOEMPLEADO FOREIGN KEY(Usuario) REFERENCES USUARIO(IdUsuario),
+    CONSTRAINT FK_ABONOTOCARGO FOREIGN KEY(IdCargo) REFERENCES CARGO(IdCargo)
+);
+
 DROP FUNCTION  IF EXISTS ObtenerDireccion;
 CREATE FUNCTION ObtenerDireccion(ID INT)
 RETURNS VARCHAR(100)
@@ -410,7 +421,7 @@ CREATE FUNCTION FN_GETCONTRATOPROPIEDAD(IDPROP INT)
     BEGIN
         DECLARE IDCONTRATOVAR INT;
 
-        SET IDCONTRATOVAR = (SELECT C.IdContrato FROM CONTRATO AS C WHERE C.IdPropiedad = IDPROP AND C.IdUnidad IS NULL LIMIT 1);
+        SET IDCONTRATOVAR = (SELECT C.IdContrato FROM CONTRATO AS C WHERE C.IdPropiedad = IDPROP AND C.IdUnidad IS NULL AND C.Estado = 'Activo' LIMIT 1);
 
         RETURN IDCONTRATOVAR;
 
@@ -738,6 +749,10 @@ CREATE PROCEDURE SP_UPDATECARGO(IN IDCARGOIN INT, IN DESCRIPCIONIN VARCHAR(255),
             SET ESTADOIN = 'Programado';
         end if;
 
+        IF MONTOIN != SALDOIN and ESTADOIN = 'Pendiente' THEN
+                SET ESTADOIN = 'Parcial';
+            end if;
+
         UPDATE CARGO SET TipoCargo = TIPOIN, Descripcion = DESCRIPCIONIN, MontoTotal = MONTOIN, FechaInicio = FECHAINICIOIN, FechaVencimiento = FECHAVENCIMIENTOIN, Estado = ESTADOIN, SaldoPendiente = SALDOIN WHERE IdCargo = IDCARGOIN;
 
     end;
@@ -752,9 +767,77 @@ CREATE PROCEDURE SP_FINALIZARCONTRATO(IN IDCONTRATOIN INT)
         UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato SET C.Estado = 'Cancelado' WHERE CO.IdContrato = IDCONTRATOIN;
     end;
 
+
+-- Administrador/PAGOS
+
+DROP FUNCTION IF EXISTS FN_OBTENERNOMBREINMUEBLE;
+CREATE FUNCTION FN_OBTENERNOMBREINMUEBLE(IDPROP INT, IDUNI INT)
+    RETURNS VARCHAR(100)
+    DETERMINISTIC
+    BEGIN
+        DECLARE NOMBREVAR VARCHAR(100);
+        IF IDUNI IS NULL THEN
+            SET NOMBREVAR = (SELECT Nombre FROM PROPIEDAD WHERE IdPropiedad = IDPROP);
+        ELSE
+            SET NOMBREVAR = (SELECT CONCAT(P.Nombre, ' - ', U.Nombre) FROM UNIDAD AS U INNER JOIN PROPIEDAD P on U.Propiedad = P.IdPropiedad WHERE U.IdUnidad = IDUNI AND P.IdPropiedad = IDPROP);
+        end if;
+
+        RETURN NOMBREVAR;
+    end;
+
+DROP PROCEDURE IF EXISTS SP_GETCARGOSPAGO;
+CREATE PROCEDURE SP_GETCARGOSPAGO()
+    BEGIN
+        SELECT C.IdCargo, CO.IdContrato, C.Descripcion, C.MontoTotal, C.SaldoPendiente, DATE_FORMAT(C.FechaInicio, '%d/%m/%Y') AS FechaInicio, DATE_FORMAT(C.FechaVencimiento, '%d/%m/%Y') AS FechaVencimiento, C.Estado, C.TipoCargo, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Inquilino, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, P.Telefono, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS DireccionInmueble FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE C.Estado = 'Pendiente' OR C.Estado = 'Parcial' OR C.Estado = 'Vencido';
+    end;
+
+DROP PROCEDURE IF EXISTS SP_REGISTRARABONO;
+CREATE PROCEDURE SP_REGISTRARABONO(IN IDCARGOIN INT, IN MONTOIN DECIMAL(10,2), IN USUARIOIN INT)
+    BEGIN
+        DECLARE SALDOACTUAL DECIMAL(10,2);
+        DECLARE NUEVOSALDO DECIMAL(10,2);
+        DECLARE NUEVOESTADO VARCHAR(20);
+
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            SELECT 0 AS RES, 'Error al registrar el abono' AS MSG;
+        END;
+
+            START TRANSACTION;
+
+        SET SALDOACTUAL = (SELECT SaldoPendiente FROM CARGO WHERE IdCargo = IDCARGOIN);
+
+        IF MONTOIN > SALDOACTUAL THEN
+            ROLLBACK;
+            SELECT 0 AS RES, 'El monto del abono no puede ser mayor al saldo pendiente' AS MSG;
+        ELSE
+            SET NUEVOSALDO = SALDOACTUAL - MONTOIN;
+
+            IF NUEVOSALDO = 0 THEN
+                SET NUEVOESTADO = 'Pagado';
+            ELSE
+                SET NUEVOESTADO = 'Parcial';
+            END IF;
+
+            INSERT INTO ABONO (IdCargo, Usuario, Monto) VALUES (IDCARGOIN, USUARIOIN, MONTOIN);
+
+            UPDATE CARGO SET SaldoPendiente = NUEVOSALDO, Estado = NUEVOESTADO WHERE IdCargo = IDCARGOIN;
+            COMMIT;
+
+            SELECT 1 AS RES, 'Abono registrado correctamente' AS MSG;
+
+        end if;
+
+    end;
+
+CALL SP_REGISTRARABONO(7,100,1001);
+SELECT * FROM ABONO;
+
 -- DATOS INICIALES
 SELECT * FROM PROPIEDAD;
 SELECT * FROM CONTRATO;
+select * from ABONO;
 select CURDATE();
 
 UPDATE CARGO SET Estado = 'Pagado', SaldoPendiente = 0 WHERE IdCargo = 18;
