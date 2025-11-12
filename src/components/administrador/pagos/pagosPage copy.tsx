@@ -28,23 +28,12 @@ function PagosPage({ contratoIdProp }: PagosPageProps) {
     DireccionInmueble: string;
   }
 
-  interface Inquilino {
-    Persona: string;
-    Inmueble: string;
-  }
-
     const [pagos, setPagos] = useState<Pago[]>([]);
-    
-    // Guarda la informacion del contrato con cargos vencidos
-    const [contratoInfo, setContratoInfo] = useState<Inquilino | null>(null);
 
   const fetchCargos = async () => {
           try {
               const data = await getCargosPago(contratoIdProp ? contratoIdProp : 0);
-              setPagos(data[0]);
-              if(contratoIdProp){
-                setContratoInfo(data[1]);
-              }
+              setPagos(data);
           } catch (error) {
               console.error(error);
               toast({
@@ -129,8 +118,8 @@ function PagosPage({ contratoIdProp }: PagosPageProps) {
     <div className="w-full h-full flex flex-col p-6 2xl:max-w-[95%] 2xl:mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className={`text-4xl font-bold mb-2 ${contratoInfo?.Persona ? 'text-red-600' : ''}`}>Pagos {contratoInfo?.Persona ? ` vencidos de ${contratoInfo.Persona}`: 'pendientes'}</h1>
-        <p className="text-gray-600">{contratoInfo?.Inmueble ? `Inmueble: ${contratoInfo.Inmueble}` : 'Administre los cargos pendientes, parciales y vencidos'}</p>
+        <h1 className="text-4xl font-bold mb-2">Pagos Pendientes</h1>
+        <p className="text-gray-600">Administra los cargos pendientes, parciales y vencidos</p>
       </div>
 
       {/* Tarjetas de estadísticas */}

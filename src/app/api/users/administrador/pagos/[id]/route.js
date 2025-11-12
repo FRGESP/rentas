@@ -15,3 +15,13 @@ export async function POST(request, { params }) {
         return NextResponse.json({ error: "Error al agregar el abono" }, { status: 500 });
     }
 }
+
+export async function GET(request, { params }) {
+    try {
+        const [response] = await conn.query("CALL SP_GETCARGOSPAGO(?)", [params.id]);
+        return NextResponse.json([response[0], response[1][0]], { status: 200 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: "Error al obtener cargos" }, { status: 500 });
+    }
+}

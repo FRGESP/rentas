@@ -72,18 +72,18 @@ function LoginForm() {
   }
 
   return (
-    <div className="w-full flex justify-center">
-      <form className='flex flex-col  w-[28%] gap-4' onSubmit={handleSubmit}>
+    <div className="w-full flex justify-center px-4">
+      <form className='flex flex-col w-full sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[28%] gap-3 sm:gap-4' onSubmit={handleSubmit}>
       {showAlert && (<AlertPro variant={alert.variant} tittle={alert.tittle} body={alert.body} duration={alert.duration} />)}
-        <div className='flex flex-col gap-2'>
-          <label htmlFor="user" className="font-semibold  text-2xl flex-grow text-left">Usuario</label>
-          <input onChange={handlechange} pattern="[0-9]+" name="user" required className='border border-black rounded-xl w-full py-3 px-3 text-xl' type="text" placeholder='Ingrese su número de usuario' autoFocus />
+        <div className='flex flex-col gap-1.5 sm:gap-2'>
+          <label htmlFor="user" className="font-semibold text-lg sm:text-xl md:text-2xl flex-grow text-left">Usuario</label>
+          <input onChange={handlechange} pattern="[0-9]+" name="user" required className='border border-black rounded-xl w-full py-2.5 sm:py-3 px-3 text-base sm:text-lg md:text-xl' type="text" placeholder='Ingrese su número de usuario' autoFocus />
         </div>
-        <div className='flex flex-col gap-2'>
-          <label htmlFor="user" className="font-semibold text-2xl flex-grow text-left">Contraseña</label>
-          <input onChange={handlechange} name="password" required className='border border-black rounded-xl w-full py-3 px-3 text-xl' type="password" placeholder='Ingrese su contraseña' />
+        <div className='flex flex-col gap-1.5 sm:gap-2'>
+          <label htmlFor="password" className="font-semibold text-lg sm:text-xl md:text-2xl flex-grow text-left">Contraseña</label>
+          <input onChange={handlechange} name="password" required className='border border-black rounded-xl w-full py-2.5 sm:py-3 px-3 text-base sm:text-lg md:text-xl' type="password" placeholder='Ingrese su contraseña' />
         </div>
-        <button className='py-3 font-semibold text-xl text-white bg-acento hover:bg-acentohover hover:cursor-pointer rounded-3xl'>Ingresar</button>
+        <button className='py-2.5 sm:py-3 font-semibold text-base sm:text-lg md:text-xl text-white bg-acento hover:bg-acentohover hover:cursor-pointer rounded-3xl active:scale-95 transition-transform'>Ingresar</button>
       </form>
     </div>
   )

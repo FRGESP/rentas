@@ -83,8 +83,6 @@ function RegistrarAbonoModal({ pago, onClose, onAbonoRegistrado }: RegistrarAbon
 
             const response = await registrarAbono({ IdCargo: pago.IdCargo, Monto: parseFloat(montoAbono) });
 
-            console.log("Respuesta al registrar abono:", response[1]);
-
             if (response[0] == 200 && response[1].RES == 1) {
                 toast({
                     title: "Abono registrado exitosamente",
@@ -229,7 +227,6 @@ function RegistrarAbonoModal({ pago, onClose, onAbonoRegistrado }: RegistrarAbon
                                             : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                         }`}
                                     disabled={isSubmitting}
-                                    autoFocus
                                 />
                             </div>
                             {errors.monto && (

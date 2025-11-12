@@ -42,12 +42,17 @@ const itemsAdmin = [
     iconBold: "/assets/administrador/PagosAzul.png",
   },
   {
+    title: "Balance",
+    url: "/users/administrador/balance",
+    icon: "/assets/administrador/balance.png",
+    iconBold: "/assets/administrador/balanceAzul.png",
+  },
+  {
     title: "Empleados",
     url: "/users/administrador/empleados",
     icon: "/assets/administrador/Empleados.png",
     iconBold: "/assets/administrador/EmpleadosVerde.png",
-  },
-  
+  },  
 ];
 
 const itemsEntradas = [

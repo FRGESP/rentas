@@ -786,9 +786,14 @@ CREATE FUNCTION FN_OBTENERNOMBREINMUEBLE(IDPROP INT, IDUNI INT)
     end;
 
 DROP PROCEDURE IF EXISTS SP_GETCARGOSPAGO;
-CREATE PROCEDURE SP_GETCARGOSPAGO()
+CREATE PROCEDURE SP_GETCARGOSPAGO(IN IDCONTRATOIN INT)
     BEGIN
-        SELECT C.IdCargo, CO.IdContrato, C.Descripcion, C.MontoTotal, C.SaldoPendiente, DATE_FORMAT(C.FechaInicio, '%d/%m/%Y') AS FechaInicio, DATE_FORMAT(C.FechaVencimiento, '%d/%m/%Y') AS FechaVencimiento, C.Estado, C.TipoCargo, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Inquilino, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, P.Telefono, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS DireccionInmueble FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE C.Estado = 'Pendiente' OR C.Estado = 'Parcial' OR C.Estado = 'Vencido';
+        IF IDCONTRATOIN = 0 THEN
+            SELECT C.IdCargo, CO.IdContrato, C.Descripcion, C.MontoTotal, C.SaldoPendiente, DATE_FORMAT(C.FechaInicio, '%d/%m/%Y') AS FechaInicio, DATE_FORMAT(C.FechaVencimiento, '%d/%m/%Y') AS FechaVencimiento, C.Estado, C.TipoCargo, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Inquilino, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, P.Telefono, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS DireccionInmueble FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE C.Estado = 'Pendiente' OR C.Estado = 'Parcial' OR C.Estado = 'Vencido';
+        ELSE
+            SELECT C.IdCargo, CO.IdContrato, C.Descripcion, C.MontoTotal, C.SaldoPendiente, DATE_FORMAT(C.FechaInicio, '%d/%m/%Y') AS FechaInicio, DATE_FORMAT(C.FechaVencimiento, '%d/%m/%Y') AS FechaVencimiento, C.Estado, C.TipoCargo, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Inquilino, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, P.Telefono, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS DireccionInmueble FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE (C.Estado = 'Pendiente' OR C.Estado = 'Parcial' OR C.Estado = 'Vencido') AND CO.IdContrato = IDCONTRATOIN AND C.Estado = 'Vencido';
+            SELECT (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Persona, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble FROM CONTRATO AS CO INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE CO.IdContrato = IDCONTRATOIN;
+        end if;
     end;
 
 DROP PROCEDURE IF EXISTS SP_REGISTRARABONO;
@@ -797,6 +802,7 @@ CREATE PROCEDURE SP_REGISTRARABONO(IN IDCARGOIN INT, IN MONTOIN DECIMAL(10,2), I
         DECLARE SALDOACTUAL DECIMAL(10,2);
         DECLARE NUEVOSALDO DECIMAL(10,2);
         DECLARE NUEVOESTADO VARCHAR(20);
+        DECLARE ESTADOACUAL VARCHAR(20);
 
         DECLARE EXIT HANDLER FOR SQLEXCEPTION
         BEGIN
@@ -807,6 +813,7 @@ CREATE PROCEDURE SP_REGISTRARABONO(IN IDCARGOIN INT, IN MONTOIN DECIMAL(10,2), I
             START TRANSACTION;
 
         SET SALDOACTUAL = (SELECT SaldoPendiente FROM CARGO WHERE IdCargo = IDCARGOIN);
+        SET ESTADOACUAL = (SELECT C.Estado FROM CARGO AS C WHERE C.IdCargo = IDCARGOIN);
 
         IF MONTOIN > SALDOACTUAL THEN
             ROLLBACK;
@@ -817,7 +824,11 @@ CREATE PROCEDURE SP_REGISTRARABONO(IN IDCARGOIN INT, IN MONTOIN DECIMAL(10,2), I
             IF NUEVOSALDO = 0 THEN
                 SET NUEVOESTADO = 'Pagado';
             ELSE
-                SET NUEVOESTADO = 'Parcial';
+                IF ESTADOACUAL = 'Vencido' THEN
+                    SET NUEVOESTADO = 'Vencido';
+                ELSE
+                    SET NUEVOESTADO = 'Parcial';
+                end if;
             END IF;
 
             INSERT INTO ABONO (IdCargo, Usuario, Monto) VALUES (IDCARGOIN, USUARIOIN, MONTOIN);
@@ -831,13 +842,50 @@ CREATE PROCEDURE SP_REGISTRARABONO(IN IDCARGOIN INT, IN MONTOIN DECIMAL(10,2), I
 
     end;
 
+-- Administrador/Balance
+
+DROP FUNCTION IF EXISTS FN_OBTENERFECHAULTIMOPAGO;
+CREATE FUNCTION FN_OBTENERFECHAULTIMOPAGO(IDCONT INT)
+    RETURNS VARCHAR(100)
+    DETERMINISTIC
+    BEGIN
+        DECLARE FECHAVAR VARCHAR(100);
+        SET FECHAVAR = (SELECT DATE_FORMAT(A.Fecha, '%d/%m/%Y') FROM CONTRATO AS CO INNER JOIN CARGO C on CO.IdContrato = C.IdContrato INNER JOIN ABONO A on C.IdCargo = A.IdCargo WHERE CO.IdContrato = IDCONT ORDER BY A.Fecha DESC LIMIT 1);
+
+        RETURN FECHAVAR;
+    end;
+
+DROP FUNCTION IF EXISTS FN_OBTENERDIASATRASO;
+CREATE FUNCTION FN_OBTENERDIASATRASO(IDCONT INT)
+    RETURNS VARCHAR(100)
+    DETERMINISTIC
+    BEGIN
+        DECLARE FECHAVAR VARCHAR(100);
+
+        SET FECHAVAR = (SELECT C.FechaVencimiento FROM CONTRATO AS CO INNER JOIN CARGO C on CO.IdContrato = C.IdContrato AND C.Estado = 'Vencido'  WHERE CO.IdContrato = IDCONT ORDER BY C.FechaVencimiento LIMIT 1);
+        SET FECHAVAR = DATEDIFF(CURDATE(),FECHAVAR);
+
+        RETURN FECHAVAR;
+    end;
+
+DROP PROCEDURE IF EXISTS SP_GETINQUILINOSATRASADOS;
+CREATE PROCEDURE SP_GETINQUILINOSATRASADOS()
+    BEGIN
+        SELECT C.IdContrato, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Nombre, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS Direccion, P.Telefono, SUM(C.SaldoPendiente) AS MontoAdeudo, (SELECT FN_OBTENERFECHAULTIMOPAGO(CO.IdContrato)) AS UltimoPago, (SELECT FN_OBTENERDIASATRASO(CO.IdContrato)) AS DiasAtraso, COUNT(C.IdCargo) AS CargosVencidos FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE C.Estado = 'Vencido' group by C.IdContrato;
+
+        SELECT A.IdAbono, DATE_FORMAT(A.Fecha, '%d/%m/%Y') AS Fecha, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, A.Monto, C.Descripcion AS Cargo, (SELECT FN_GETNOMBREBYID(E.IdPersona)) AS Usuario FROM ABONO AS A INNER JOIN USUARIO AS Us ON A.Usuario = Us.IdUsuario INNER JOIN EMPLEADO AS E ON Us.IdEmpleado = E.IdEmpleado INNER JOIN CARGO AS C ON A.IdCargo = C.IdCargo INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE DATEDIFF(CURDATE(), A.Fecha) < 8 ORDER BY A.Fecha DESC;
+
+    end;
+
 CALL SP_REGISTRARABONO(7,100,1001);
 SELECT * FROM ABONO;
+select * from PERSONA;
 
 -- DATOS INICIALES
 SELECT * FROM PROPIEDAD;
 SELECT * FROM CONTRATO;
-select * from ABONO;
+select * from CARGO where Estado = 'Parcial' and IdContrato = 1;
+update CARGO set FechaVencimiento = '2025-09-10', Estado = 'Vencido' where IdCargo = 14;
 select CURDATE();
 
 UPDATE CARGO SET Estado = 'Pagado', SaldoPendiente = 0 WHERE IdCargo = 18;
