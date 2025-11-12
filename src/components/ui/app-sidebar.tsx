@@ -21,30 +21,11 @@ import {
 // Menu items.
 const itemsAlmacen = [
   {
-    title: "Dietas",
-    url: "/users/almacen/dietas",
-    icon: "/assets/Almacen/Maiz.png",
-    iconBold: "/assets/Almacen/MaizVerde.png",
+    title: "Pagos",
+    url: "/users/cajero/pagos",
+    icon: "/assets/administrador/Pagos.png",
+    iconBold: "/assets/administrador/PagosAzul.png",
   },
-  {
-    title: "Almacén",
-    url: "/users/almacen/almacenpage",
-    icon: "/assets/Almacen/Almacen.png",
-    iconBold: "/assets/Almacen/AlmacenVerde.png",
-
-  },
-  {
-    title: "Medicamento",
-    url: "/users/almacen/medicamento",
-    icon: "/assets/Almacen/Medicamentos.png",
-    iconBold: "/assets/Almacen/MedicamentosVerde.png",
-  },
-  {
-    title: "Ganado",
-    url: "/users/almacen/ganado",
-    icon: "/assets/Admin/Ganado.png",
-    iconBold: "/assets/Admin/GanadoVerde.png",
-  }
 ];
 
 const itemsAdmin = [
