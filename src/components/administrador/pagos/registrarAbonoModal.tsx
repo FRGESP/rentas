@@ -150,7 +150,7 @@ function RegistrarAbonoModal({ pago, onClose, onAbonoRegistrado }: RegistrarAbon
                             <span className={`text-xs font-medium px-3 py-1 rounded-full border ${getEstadoBadge(pago.Estado)}`}>
                                 {pago.Estado}
                             </span>
-                            <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-100 text-purple-700">
+                            <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">
                                 {pago.TipoCargo}
                             </span>
                         </div>

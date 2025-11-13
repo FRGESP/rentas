@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Receipt, X } from "lucide-react";
+import { Receipt, X, SquarePlus } from "lucide-react";
 import { addCargo } from "@/actions";
 
 interface AddModalProps {
@@ -184,8 +184,13 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
 
     return (
         <div>
-            <button className="px-4 py-2 rounded bg-navy text-white hover:bg-navyhover w-full" onClick={openModal}>Agregar cargo</button>
+            <button className=" rounded-md" onClick={openModal}>
+                <SquarePlus
+                    className="text-white stroke-[1.5]"
+                    size={38}
 
+                />
+            </button>
             {isOpen && (
                 <div className="flex items-center justify-center">
                     <div
@@ -387,7 +392,7 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                                         }`}
                                                     name="plazo"
                                                     onChange={handleChange}
-                                                    
+
                                                     defaultValue={1}
                                                     placeholder="Número de meses"
                                                     onWheel={(e) => e.currentTarget.blur()}

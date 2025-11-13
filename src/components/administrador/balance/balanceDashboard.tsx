@@ -138,7 +138,7 @@ function BalanceDashboard() {
                 </div>
 
                 {/* Promedio de Atraso */}
-                <div className="bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg p-5 shadow-lg">
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg p-5 shadow-lg">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium opacity-90">Días de retraso promedio</h3>
                         <Calendar className="w-5 h-5 opacity-80" />
