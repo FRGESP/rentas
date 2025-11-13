@@ -47,6 +47,15 @@ type Cargo = {
     SaldoPendiente: number;
 };
 
+type Abono = {
+    IdAbono: number;
+    IdCargo: number;
+    DescripcionCargo: string;
+    Usuario: string;
+    Fecha: string;
+    Monto: number;
+};
+
 interface DetallePageProps {
     contratoProp: number
 }
@@ -69,6 +78,9 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
 
     //Estado para almacenar los cargos
     const [cargos, setCargos] = useState<Cargo[]>([]);
+
+    //Estado para almacenar los abonos
+    const [abonos, setAbonos] = useState<Abono[]>([]);
 
     const [tipoFilter, setTipoFilter] = useState<string>("all");
 
@@ -97,12 +109,14 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
             setContrato(data[0][0]);
             setCargosFijos(data[1]);
             setCargos(data[2]);
+            setAbonos(data[3]);
+            
             console.log(data[1][0]);
         } catch (error) {
             console.error(error);
             toast({
                 title: "Error al cargar Unidades",
-                description: "Intenta de nuevo más tarde.",
+                description: "Intenta de nuevo más tarde.",
                 variant: "destructive",
             });
         }
@@ -135,11 +149,9 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
     const stats = useMemo(() => {
         const vencidos = cargos.filter(c => c.Estado === "Vencido");
         const pendientes = cargos.filter(c => c.Estado === "Pendiente" || c.Estado === "Parcial");
-        const montoVencido = vencidos.reduce((acc, c) => acc + c.SaldoPendiente, 0);
-        const pagadoMes = cargos
-            .filter(c => c.Estado === "Pagado" && (c.FechaInicio ?? "").startsWith(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`))
-            .reduce((acc, c) => acc + c.MontoTotal, 0);
-        return { vencidos: vencidos.length, pendientes: pendientes.length, montoVencido, pagadoMes };
+        const montoVencido = vencidos.reduce((acc, c) => acc + Number(c.SaldoPendiente), 0);
+        const saldoTotal = cargos.reduce((acc, c) => acc + Number(c.SaldoPendiente), 0);
+        return { vencidos: vencidos.length, pendientes: pendientes.length, montoVencido, saldoTotal };
     }, [cargos]);
 
     const filtered = useMemo(() => {
@@ -306,8 +318,8 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
                     <p className="text-2xl font-semibold">{stats.vencidos} ({currency(stats.montoVencido)})</p>
                 </div>
                 <div className="p-4 rounded-lg shadow bg-white">
-                    <p className="text-sm text-gray-500">Pagado este mes</p>
-                    <p className="text-2xl font-semibold">{currency(stats.pagadoMes)}</p>
+                    <p className="text-sm text-gray-500">Saldo Total</p>
+                    <p className="text-2xl font-semibold">{currency(stats.saldoTotal)}</p>
                 </div>
             </div>
 
@@ -344,7 +356,7 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
                                 <option value="Pagado">Pagado</option>
                             </select>
                         </div>
-                        <div className="">
+                        <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="text-left border-b">
@@ -427,6 +439,55 @@ export default function DetallePage({ contratoProp }: DetallePageProps) {
                                             </td>
                                         </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Historial de Abonos */}
+                    <div className="p-5 rounded-lg shadow bg-white">
+                        <div className="flex items-center justify-between mb-3">
+                            <h2 className="font-semibold text-lg flex items-center gap-2">
+                                <CircleDollarSign className="w-5 h-5 text-green-600" />
+                                Historial de Abonos
+                            </h2>
+                            <span className="text-sm text-gray-500">
+                                Total: {currency(abonos.reduce((acc, a) => acc + Number(a.Monto), 0))}
+                            </span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="text-left border-b">
+                                        <th className="py-2">ID</th>
+                                        <th>Fecha</th>
+                                        <th>Cargo</th>
+                                        <th>Monto</th>
+                                        <th>Usuario</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {abonos.length > 0 ? (
+                                        abonos.map((abono) => (
+                                            <tr key={abono.IdAbono} className="border-b hover:bg-gray-50">
+                                                <td className="py-3">{abono.IdAbono}</td>
+                                                <td>{abono.Fecha}</td>
+                                                <td className="max-w-xs truncate" title={abono.DescripcionCargo}>
+                                                    {abono.DescripcionCargo}
+                                                </td>
+                                                <td className="font-medium text-green-600">
+                                                    {currency(abono.Monto)}
+                                                </td>
+                                                <td>{abono.Usuario}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="py-6 text-center text-gray-500">
+                                                No hay abonos registrados para este contrato
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

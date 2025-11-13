@@ -626,6 +626,9 @@ BEGIN
     -- OBTENER INFORMACIÓN DE LOS CARGOS
     SELECT C.IdCargo, C.Descripcion, C.MontoTotal, DATE_FORMAT(C.FechaInicio, '%d/%m/%Y') AS FechaInicio, DATE_FORMAT(C.FechaVencimiento, '%d/%m/%Y') AS FechaVencimiento, C.Estado, C.SaldoPendiente, C.TipoCargo FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato WHERE CO.IdContrato = IDCONTRA AND C.Estado != 'Eliminado';
 
+    -- OBTENER INFORMACION DE LOS ABONOS
+    SELECT A.IdAbono, DATE_FORMAT(A.Fecha, '%d/%m/%Y') AS Fecha, A.Monto, C.Descripcion AS DescripcionCargo, (SELECT FN_GETNOMBREBYID(E.IdPersona)) AS Usuario FROM ABONO AS A INNER JOIN USUARIO AS Us ON A.Usuario = Us.IdUsuario INNER JOIN EMPLEADO AS E ON Us.IdEmpleado = E.IdEmpleado INNER JOIN CARGO AS C ON A.IdCargo = C.IdCargo INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona WHERE C.IdContrato = IDCONTRA ORDER BY A.Fecha DESC;
+
 end;
 call SP_GETCONTRATOINFO(1);
 DROP PROCEDURE IF EXISTS SP_GETINQUILINOINFO;
@@ -873,7 +876,7 @@ CREATE PROCEDURE SP_GETINQUILINOSATRASADOS()
     BEGIN
         SELECT C.IdContrato, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Nombre, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, (SELECT FN_OBTENERDIRECCION(PR.Direccion)) AS Direccion, P.Telefono, SUM(C.SaldoPendiente) AS MontoAdeudo, (SELECT FN_OBTENERFECHAULTIMOPAGO(CO.IdContrato)) AS UltimoPago, (SELECT FN_OBTENERDIASATRASO(CO.IdContrato)) AS DiasAtraso, COUNT(C.IdCargo) AS CargosVencidos FROM CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE C.Estado = 'Vencido' group by C.IdContrato;
 
-        SELECT A.IdAbono, DATE_FORMAT(A.Fecha, '%d/%m/%Y') AS Fecha, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, A.Monto, C.Descripcion AS Cargo, (SELECT FN_GETNOMBREBYID(E.IdPersona)) AS Usuario FROM ABONO AS A INNER JOIN USUARIO AS Us ON A.Usuario = Us.IdUsuario INNER JOIN EMPLEADO AS E ON Us.IdEmpleado = E.IdEmpleado INNER JOIN CARGO AS C ON A.IdCargo = C.IdCargo INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE DATEDIFF(CURDATE(), A.Fecha) < 8 ORDER BY A.Fecha DESC;
+        SELECT A.IdAbono, DATE_FORMAT(A.Fecha, '%d/%m/%Y') AS Fecha, (SELECT FN_OBTENERNOMBREINMUEBLE(PR.IdPropiedad, U.IdUnidad)) AS Inmueble, (SELECT FN_GETNOMBREBYID(CO.IdPersona)) AS Inquilino, A.Monto, C.Descripcion AS Cargo, (SELECT FN_GETNOMBREBYID(E.IdPersona)) AS Usuario FROM ABONO AS A INNER JOIN USUARIO AS Us ON A.Usuario = Us.IdUsuario INNER JOIN EMPLEADO AS E ON Us.IdEmpleado = E.IdEmpleado INNER JOIN CARGO AS C ON A.IdCargo = C.IdCargo INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato AND CO.Estado = 'Activo' INNER JOIN PROPIEDAD PR on CO.IdPropiedad = PR.IdPropiedad AND PR.Estatus = 'Activo' INNER JOIN PERSONA AS P ON CO.IdPersona = P.IdPersona LEFT JOIN UNIDAD AS U ON CO.IdUnidad = U.IdUnidad WHERE DATEDIFF(CURDATE(), A.Fecha) < 8 ORDER BY A.Fecha DESC;
 
     end;
 
