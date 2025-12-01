@@ -223,14 +223,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                 <div className="space-y-2">
                                     <label
                                         htmlFor="descripcion"
-                                        className="block font-semibold"
+                                        className="block font-semibold text-gray-900"
                                     >
                                         Descripción del cargo
                                     </label>
                                     <input
                                         type="text"
                                         id="descripcion"
-                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["descripcion"]
+                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["descripcion"]
                                             ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                             : "border-gray-400"
                                             }`}
@@ -250,14 +250,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                 <div>
                                     <label
                                         htmlFor="monto"
-                                        className="block font-semibold"
+                                        className="block font-semibold text-gray-900"
                                     >
                                         Monto del cargo
                                     </label>
                                     <input
                                         type="number"
                                         id="monto"
-                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["monto"]
+                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["monto"]
                                             ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                             : "border-gray-400"
                                             }`}
@@ -283,7 +283,7 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                         name="tipo"
                                         id="tipo"
                                         defaultValue={'Default'}
-                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white ${errors["tipo"]
+                                        className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none bg-white text-gray-900 ${errors["tipo"]
                                             ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                             : "border-gray-400"
                                             }`}
@@ -306,14 +306,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                         <div>
                                             <label
                                                 htmlFor="diaCobro"
-                                                className="block font-semibold"
+                                                className="block font-semibold text-gray-900"
                                             >
                                                 Día de cobro del cargo
                                             </label>
                                             <input
                                                 type="number"
                                                 id="diaCobro"
-                                                className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["diaCobro"]
+                                                className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["diaCobro"]
                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                                     : "border-gray-400"
                                                     }`}
@@ -363,7 +363,7 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                                 />
                                                 <label
                                                     htmlFor="esAPlazo"
-                                                    className="font-semibold cursor-pointer select-none"
+                                                    className="font-semibold cursor-pointer select-none text-gray-900"
                                                 >
                                                     Cargo a plazo (temporal)
                                                 </label>
@@ -379,14 +379,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                             <div className="space-y-2 mt-4 animate-in slide-in-from-top-2 duration-200">
                                                 <label
                                                     htmlFor="plazo"
-                                                    className="block font-semibold"
+                                                    className="block font-semibold text-gray-900"
                                                 >
                                                     Plazo (meses)
                                                 </label>
                                                 <input
                                                     type="number"
                                                     id="plazo"
-                                                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["plazo"]
+                                                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["plazo"]
                                                         ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                                         : "border-gray-400"
                                                         }`}
@@ -443,7 +443,7 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                                 />
                                                 <label
                                                     htmlFor="esProgramado"
-                                                    className="font-semibold cursor-pointer select-none"
+                                                    className="font-semibold cursor-pointer select-none text-gray-900"
                                                 >
                                                     Cargo programado
                                                 </label>
@@ -459,14 +459,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                             <div className="space-y-2 mt-4 animate-in slide-in-from-top-2 duration-200">
                                                 <label
                                                     htmlFor="fechaInicio"
-                                                    className="block font-semibold"
+                                                    className="block font-semibold text-gray-900"
                                                 >
                                                     Fecha de inicio
                                                 </label>
                                                 <input
                                                     type="date"
                                                     id="fechaInicio"
-                                                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["fechaInicio"]
+                                                    className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["fechaInicio"]
                                                         ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                                         : "border-gray-400"
                                                         }`}
@@ -489,14 +489,14 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                                         <div className="space-y-2 mt-4 animate-in slide-in-from-top-2 duration-200">
                                             <label
                                                 htmlFor="fechaVencimiento"
-                                                className="block font-semibold"
+                                                className="block font-semibold text-gray-900"
                                             >
                                                 Fecha de vencimiento
                                             </label>
                                             <input
                                                 type="date"
                                                 id="fechaVencimiento"
-                                                className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none ${errors["fechaVencimiento"]
+                                                className={`w-full px-4 py-2.5 rounded-lg border-2 transition-all duration-200 focus:outline-none text-gray-900 ${errors["fechaVencimiento"]
                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                                                     : "border-gray-400"
                                                     }`}

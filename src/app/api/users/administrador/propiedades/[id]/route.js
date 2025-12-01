@@ -16,6 +16,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
     const req = await request.json();
     try {
+        console.log(req);
         const [response] = await conn.query("CALL SP_EDITPROPIEDAD(?,?,?,?,?,?)", [params.id, req.Nombre, req.Tipo, req.Codigo, req.Colonia, req.Calle]);
 
         return NextResponse.json(response[0][0], { status: 200 });

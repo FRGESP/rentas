@@ -177,6 +177,7 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
             }
         })
         setErrors(newErrors);
+        console.log(inputValue);
 
 
         if (Object.keys(newErrors).length == 0) {
