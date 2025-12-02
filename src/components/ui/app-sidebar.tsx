@@ -32,14 +32,14 @@ const itemsAdmin = [
   {
     title: "Propiedades",
     url: "/users/administrador/propiedades",
-    icon: "/assets/administrador/Propiedades.png",
-    iconBold: "/assets/administrador/PropiedadesAzul.png",
+    icon: "/assets/administrador/propiedades.png",
+    iconBold: "/assets/administrador/propiedadesAzul.png",
   },
   {
     title: "Pagos",
     url: "/users/administrador/pagos",
-    icon: "/assets/administrador/Pagos.png",
-    iconBold: "/assets/administrador/PagosAzul.png",
+    icon: "/assets/administrador/pagos.png",
+    iconBold: "/assets/administrador/pagosAzul.png",
   },
   {
     title: "Balance",
@@ -50,8 +50,8 @@ const itemsAdmin = [
   {
     title: "Empleados",
     url: "/users/administrador/empleados",
-    icon: "/assets/administrador/Empleados.png",
-    iconBold: "/assets/administrador/EmpleadosAzul.png",
+    icon: "/assets/administrador/empleados.png",
+    iconBold: "/assets/administrador/empleadosAzul.png",
   },  
 ];
 
@@ -90,7 +90,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex flex-col justify-center items-center overflow-hidden">
-          <img src="/assets/Login/Logo.webp" alt="" className="items-center w-20"/>
+          <img src="/assets/login/Logo.webp" alt="" className="items-center w-20"/>
         </div>
       </SidebarHeader>
       <SidebarContent>

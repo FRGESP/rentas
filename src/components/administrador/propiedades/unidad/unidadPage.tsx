@@ -51,7 +51,7 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
     };
 
     const handleDelete = async (id: number) => {
-        if (confirm("¿Está seguro de que desea eliminar esta Unidad? \nEsto también cancelará todos los contratos asociados.")) {
+        if (confirm("¿Está seguro de que desea eliminar esta Unidad?")) {
             try {
                 const response = await axios.delete(`/api/users/administrador/propiedades/unidades/${id}`);
                 if (response.status === 200) {

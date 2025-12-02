@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/initCron.js & next dev",
-    "build": "next build",
+    "build": "node scripts/initCron.js & next build",
     "start": "node scripts/initCron.js & next start",
     "lint": "next lint"
   },
