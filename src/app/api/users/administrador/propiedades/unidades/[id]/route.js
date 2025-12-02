@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
 export async function DELETE(request, { params }) {
     try {
         const [response] = await conn.query("CALL SP_DELETEUNIDAD(?)", [params.id]);
-        return NextResponse.json({ status: 200 });
+        return NextResponse.json(response[0][0], { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Error al eliminar la unidad" }, { status: 500 });

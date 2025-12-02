@@ -30,7 +30,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
     try {
         const [response] = await conn.query("CALL SP_DELETEPROPIEDAD(?)", [params.id]);
-        return NextResponse.json({ status: 200 });
+       return NextResponse.json(response[0][0], { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Error al eliminar la propiedad" }, { status: 500 });

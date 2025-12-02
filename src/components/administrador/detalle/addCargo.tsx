@@ -146,6 +146,10 @@ function AddModalCargos({ onGuardado, IdContratoProp }: AddModalProps) {
                     newErrors[Key] = "Ingrese un día válido entre 1 y 31";
                 }
             }
+            // Verifica que el campo de fecha de vencimiento para cargos fijos y variable no se quede vacío
+            if (Key === "fechaVencimiento" && tipoCargo !== "Fijo" && String(value).trim() === "") {
+                newErrors[Key] = "Este campo es obligatorio"
+            }
 
         })
         setErrors(newErrors);

@@ -193,8 +193,8 @@ function UpdateModalPropiedad({ IdPropiedad, onGuardado }: UpdateModalPropiedadP
                     setIsOpen(false);
                     if (responseUpdate.data.RES === 1) {
                         toast({
-                            title: "No se pudo actualizar el tipo de propiedad",
-                            description: "La propiedad tiene unidades activas, por lo que no se pudo actualizar su tipo.",
+                            title: "No se puede actualizar el tipo de propiedad",
+                            description: "La propiedad tiene unidades o contratos activos, por lo que no se puede actualizar su tipo.",
                             variant: "warning",
                         });
                     } else {

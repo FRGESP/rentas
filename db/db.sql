@@ -469,7 +469,12 @@ CREATE PROCEDURE SP_EDITPROPIEDAD(IN IDIN INT, IN NOMBREIN VARCHAR(100), IN TIPO
             end if;
 
         ELSE
-            SELECT 0 AS RES;
+           IF  TIPOVAR != TIPOIN AND (SELECT FN_GETCONTRATOPROPIEDAD(IDIN) IS NOT NULL) THEN
+               SELECT 1 AS RES;
+                SET TIPOIN = TIPOVAR;
+            ELSE
+               SELECT 0 AS RES;
+           end if;
         end if;
 
         SET IDDIR = (SELECT P.Direccion FROM PROPIEDAD AS P WHERE P.IdPropiedad = IDIN);
@@ -479,18 +484,48 @@ CREATE PROCEDURE SP_EDITPROPIEDAD(IN IDIN INT, IN NOMBREIN VARCHAR(100), IN TIPO
 
     end;
 
+DROP FUNCTION IF EXISTS FN_GETPROPIEDADOCUPADA;
+CREATE FUNCTION FN_GETPROPIEDADOCUPADA(IDPROP INT)
+    RETURNS BOOLEAN
+    DETERMINISTIC
+    BEGIN
+        DECLARE OCUPADA BOOLEAN;
+
+        IF (SELECT P.Tipo FROM PROPIEDAD AS P WHERE P.IdPropiedad = IDPROP) = 'Edificio' THEN
+            IF (SELECT FN_GETUNIDADESOCUPADAS(IDPROP)) > 0 THEN
+                SET OCUPADA = TRUE;
+            ELSE
+                SET OCUPADA = FALSE;
+            end if;
+        ELSE
+            IF (SELECT FN_GETCONTRATOPROPIEDAD(IDPROP) IS NOT NULL) THEN
+                SET OCUPADA = TRUE;
+            ELSE
+                SET OCUPADA = FALSE;
+            end if;
+        end if;
+
+        RETURN OCUPADA;
+    end;
+
 DROP PROCEDURE IF EXISTS SP_DELETEPROPIEDAD;
 CREATE PROCEDURE SP_DELETEPROPIEDAD(IN IDPROP INT)
     BEGIN
 
-        UPDATE PROPIEDAD SET Estatus = 'Eliminado' WHERE IdPropiedad = IDPROP;
-        UPDATE UNIDAD AS U SET Estatus = 'Eliminado' WHERE U.Propiedad = IDPROP;
-        UPDATE CONTRATO AS C SET Estado = 'Cancelado' WHERE C.IdPropiedad = IDPROP;
-        UPDATE CONTRATO AS C INNER JOIN UNIDAD AS U ON C.IdUnidad = U.IdUnidad SET C.Estado = 'Cancelado' WHERE U.Propiedad = IDPROP;
+        IF (SELECT FN_GETPROPIEDADOCUPADA(IDPROP)) THEN
+            SELECT 1 AS RES;
+        ELSE
+            UPDATE PROPIEDAD SET Estatus = 'Eliminado' WHERE IdPropiedad = IDPROP;
+            UPDATE UNIDAD AS U SET Estatus = 'Eliminado' WHERE U.Propiedad = IDPROP;
+            UPDATE CONTRATO AS C SET Estado = 'Cancelado' WHERE C.IdPropiedad = IDPROP;
+            UPDATE CONTRATO AS C INNER JOIN UNIDAD AS U ON C.IdUnidad = U.IdUnidad SET C.Estado = 'Cancelado' WHERE U.Propiedad = IDPROP;
 
-        UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS P ON CO.IdPropiedad = P.IdPropiedad SET C.Estado = 'Eliminado' WHERE P.IdPropiedad = IDPROP;
+            UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS P ON CO.IdPropiedad = P.IdPropiedad SET C.Estado = 'Eliminado' WHERE P.IdPropiedad = IDPROP;
 
-        UPDATE CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS P ON CO.IdPropiedad = P.IdPropiedad SET C.Estado = 'Eliminado' WHERE P.IdPropiedad = IDPROP;
+            UPDATE CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN PROPIEDAD AS P ON CO.IdPropiedad = P.IdPropiedad SET C.Estado = 'Eliminado' WHERE P.IdPropiedad = IDPROP;
+            SELECT 0 AS RES;
+        end if;
+
 
     end;
 
@@ -512,18 +547,27 @@ DROP PROCEDURE IF EXISTS SP_GETUNIDADES;
 CREATE PROCEDURE SP_GETUNIDADES(IN IDPROPIN INT)
     BEGIN
         SELECT P.Nombre AS NombrePropiedad FROM PROPIEDAD AS P WHERE IdPropiedad = IDPROPIN;
-        SELECT U.IdUnidad, U.Nombre AS NombreUnidad, (SELECT FN_GETNOMBREBYID(C.IdPersona)) AS Inquilino, (SELECT FN_GETPRECIORENTA(U.IdUnidad, TRUE)) AS Renta, DATE_FORMAT(C.FechaCreacion, '%d/%m/%Y') AS FechaInicio, (SELECT FN_GETPAGOSVENCIDOSUNIDADES(U.IdUnidad)) AS PagosVencidos, C.IdContrato AS Contrato FROM UNIDAD AS U LEFT JOIN CONTRATO AS C ON U.IdUnidad = C.IdUnidad WHERE U.Propiedad = IDPROPIN AND U.Estatus = 'Activo' AND (C.Estado = 'Activo' OR C.Estado IS NULL);
+        SELECT U.IdUnidad, U.Nombre AS NombreUnidad, (SELECT FN_GETNOMBREBYID(C.IdPersona)) AS Inquilino, (SELECT FN_GETPRECIORENTA(U.IdUnidad, TRUE)) AS Renta, DATE_FORMAT(C.FechaCreacion, '%d/%m/%Y') AS FechaInicio, (SELECT FN_GETPAGOSVENCIDOSUNIDADES(U.IdUnidad)) AS PagosVencidos, C.IdContrato AS Contrato FROM UNIDAD AS U LEFT JOIN CONTRATO AS C ON U.IdUnidad = C.IdUnidad AND C.Estado = 'Activo' WHERE U.Propiedad = IDPROPIN AND U.Estatus = 'Activo';
     end;
 
 DROP PROCEDURE IF EXISTS SP_DELETEUNIDAD;
 CREATE PROCEDURE SP_DELETEUNIDAD(IN IDUNI INT)
     BEGIN
-        UPDATE UNIDAD SET Estatus = 'Eliminado' WHERE IdUnidad = IDUNI;
-        UPDATE CONTRATO AS C SET Estado = 'Cancelado' WHERE C.IdUnidad = IDUNI;
+        IF (SELECT FN_GETPRECIORENTA(IDUNI, TRUE)) IS NOT NULL THEN
+            SELECT 1 AS RES;
+        ELSE
 
-        UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN UNIDAD AS P ON CO.IdUnidad = P.IdUnidad SET C.Estado = 'Eliminado' WHERE P.IdUnidad = IDUNI;
+            UPDATE UNIDAD SET Estatus = 'Eliminado' WHERE IdUnidad = IDUNI;
+            UPDATE CONTRATO AS C SET Estado = 'Cancelado' WHERE C.IdUnidad = IDUNI;
 
-        UPDATE CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN UNIDAD AS P ON CO.IdUnidad = P.IdUnidad SET C.Estado = 'Eliminado' WHERE P.IdUnidad = IDUNI;
+            UPDATE CARGOFIJO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN UNIDAD AS P ON CO.IdUnidad = P.IdUnidad SET C.Estado = 'Eliminado' WHERE P.IdUnidad = IDUNI;
+
+            UPDATE CARGO AS C INNER JOIN CONTRATO AS CO ON C.IdContrato = CO.IdContrato INNER JOIN UNIDAD AS P ON CO.IdUnidad = P.IdUnidad SET C.Estado = 'Eliminado' WHERE P.IdUnidad = IDUNI;
+
+            SELECT 0 AS RES;
+        end if;
+
+
 
     end;
 
@@ -763,6 +807,10 @@ CREATE PROCEDURE SP_UPDATECARGO(IN IDCARGOIN INT, IN DESCRIPCIONIN VARCHAR(255),
                 SET ESTADOIN = 'Parcial';
             end if;
 
+        IF SALDOIN = 0 THEN
+            SET ESTADOIN = 'Pagado';
+        end if;
+
         UPDATE CARGO SET TipoCargo = TIPOIN, Descripcion = DESCRIPCIONIN, MontoTotal = MONTOIN, FechaInicio = FECHAINICIOIN, FechaVencimiento = FECHAVENCIMIENTOIN, Estado = ESTADOIN, SaldoPendiente = SALDOIN WHERE IdCargo = IDCARGOIN;
 
     end;
@@ -887,31 +935,7 @@ CREATE PROCEDURE SP_GETINQUILINOSATRASADOS()
 
     end;
 
-CALL SP_REGISTRARABONO(7,100,1001);
-SELECT * FROM ABONO;
-select * from PERSONA;
-
 -- DATOS INICIALES
-SELECT * FROM PROPIEDAD;
-SELECT * FROM CONTRATO;
-select * from CARGO where Estado = 'Parcial' and IdContrato = 1;
-update CARGO set FechaVencimiento = '2025-09-10', Estado = 'Vencido' where IdCargo = 14;
-select CURDATE();
-
-UPDATE CARGO SET Estado = 'Pagado', SaldoPendiente = 0 WHERE IdCargo = 18;
-
-INSERT CARGOFIJO (Descripcion, Monto, DiaCobro, IdContrato, Estado, Plazo) VALUES ('TEST123', 100, 9, 1, 'Activo', 3);
-
-SELECT @@global.time_zone, @@session.time_zone;
-SET time_zone = 'America/Mexico_City';
-    SELECT curdate();
-SELECT * FROM CARGO AS C WHERE C.FechaVencimiento > CURDATE();
-
-SELECT DATE_ADD(DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-15'), INTERVAL 1 MONTH), INTERVAL 2 WEEK);
-
-SELECT (DATE_ADD(DATE_FORMAT(CURDATE(), CONCAT(LPAD(15, 2, '0'), '/%m/%Y')), INTERVAL 1 MONTH));
-
-SELECT DATE_FORMAT(DATE_ADD(DATE_FORMAT(CURDATE(), CONCAT('%Y-%m-', LPAD(15, 2, '0'))), INTERVAL 1 MONTH), '%d/%m/%Y');
 
 INSERT INTO DIRECCION (IdCodigoPostal, IdColonia, Calle) SELECT IdCodigoPostal, 72856, 'Victoria 54' FROM CODIGOPOSTAL WHERE CodigoPostal = '38800' LIMIT 1;
 INSERT INTO DIRECCION (IdCodigoPostal, IdColonia, Calle) SELECT IdCodigoPostal, 119795, 'Allende 32' FROM CODIGOPOSTAL WHERE CodigoPostal = '58000' LIMIT 1;
@@ -919,7 +943,7 @@ INSERT INTO DIRECCION (IdCodigoPostal, IdColonia, Calle) SELECT IdCodigoPostal, 
 INSERT INTO ROL (Rol) VALUE ('Vendedor');
 INSERT INTO ROL (Rol) VALUE ('Cajero');
 INSERT INTO ROL (Rol) VALUE ('Administrador');
-select * from UNIDAD;
+
 INSERT INTO ESTATUS (ESTATUS) VALUES ('Activo');
 INSERT INTO ESTATUS (ESTATUS) VALUES ('Despedido');
 INSERT INTO ESTATUS (ESTATUS) VALUES ('Suspendido');
@@ -942,40 +966,3 @@ CALL SP_ADDUNIDAD('Departamento 7', 1);
 CALL SP_ADDUNIDAD('Departamento 8', 1);
 
 CALL SP_ADDPROPIEDAD('Casa Puebla', 'Casa', 38800, 72856, 'Puebla 201');
-
-
-SELECT * FROM DIRECCION;
-
-SELECT * FROM USUARIO;
-
-SELECT * FROM EMPLEADO;
-
-SELECT * FROM ROL;
-
-UPDATE EMPLEADO SET IdEstatus = 1 WHERE IdEmpleado = 1;
-
-UPDATE EMPLEADO SET IdRol = 3 WHERE IdEmpleado = 2;
-
-SELECT * FROM USUARIO;
-
-UPDATE USUARIO SET Contraseña = '$2b$10$VuHF8B70UNBN.MmD6vS20eigaxYkUjkCi.mcxtRVJqQwpnDkua2jq' WHERE IdUsuario = 1001;
-
-SELECT * FROM PERSONA;
-
-CALL SP_UPDATEEMPLEADO(2,'TEST','TEST2','TEST3','12121',1,1);
-
-
-CALL LOGIN(1001, '123456');
-
-SELECT * FROM USUARIO;
-
-
-SELECT ObtenerDireccion(38940);
-
-SELECT CONCAT(E.Estado, ' ', M.Municipio, ' ', C2.Colonia, ' ', C.CodigoPostal) AS DIRECCION FROM ESTADO AS E INNER JOIN MUNICIPIO AS M ON E.IdEstado = M.IdEstado INNER JOIN CODIGOPOSTAL AS C ON M.IdMunicipio = C.IdMunicipio INNER JOIN COLONIA C2 on C.IdCodigoPostal = C2.IdCodigoPostal WHERE C.CodigoPostal = 29000;
-
-SELECT CONCAT(E.IdEstado, ' ', M.IdMunicipio, ' ', C2.Colonia, ' ', C.CodigoPostal) AS DIRECCION FROM ESTADO AS E INNER JOIN MUNICIPIO AS M ON E.IdEstado = M.IdEstado INNER JOIN CODIGOPOSTAL AS C ON M.IdMunicipio = C.IdMunicipio INNER JOIN COLONIA C2 on C.IdCodigoPostal = C2.IdCodigoPostal WHERE C.CodigoPostal = 29000;
-
-CALL SP_OBTENERCOLONIAS('58000');
-
-select * from ABONO;

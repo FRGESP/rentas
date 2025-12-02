@@ -7,6 +7,7 @@ import AddModalPropiedades from "./addModalPropiedades";
 import UpdateModalPropiedad from "./updateModalPropiedades";
 import { useRouter } from 'next/navigation';
 import AddModalContrato from "@/components/administrador/contratos/contratoForm";
+import axios from "axios";
 
 
 
@@ -52,26 +53,41 @@ function PropiedadesPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (confirm("¿Está seguro de que desea eliminar esta propiedad? \nEsto también eliminará todas las unidades y contratos asociados.")) {
+        if (confirm("¿Está seguro de que desea eliminar esta propiedad?")) {
             try {
-                const response = await deletePropiedad(id);
+                const response = await axios.delete(`/api/users/administrador/propiedades/${id}`);
                 if (response.status === 200) {
-                    fetchPropiedades();
+                    if (response.data.RES == 1) {
+                        toast({
+                            title: "No se puede eliminar la propiedad",
+                            description: "La propiedad cuenta con unidades o contratos activos, por lo que no se puede eliminar.",
+                            variant: "warning",
+                        });
+                    } else {
+                        fetchPropiedades();
+                        toast({
+                            title: "Propiedad eliminada",
+                            description: "La propiedad ha sido eliminada",
+                            variant: "success",
+                        });
+                    }
+                } else {
                     toast({
-                        title: "Propiedad eliminada",
-                        description: "La propiedad ha sido eliminada correctamente",
-                        variant: "success",
+                        title: "Error estatus",
+                        description: "La propiedad no ha sido eliminada correctamente",
+                        variant: "destructive",
                     });
                 }
             } catch (error) {
                 toast({
-                    title: "Error",
+                    title: "Error server",
                     description: "No se pudo eliminar la propiedad",
                     variant: "destructive",
                 });
             }
         }
     }
+    
 
     useEffect(() => {
         fetchPropiedades();
@@ -230,5 +246,3 @@ function PropiedadesPage() {
 }
 
 export default PropiedadesPage
-
-// onClick={() => router.push(`/users/cajero/pedidos/${pedido.IdPedido}`)}

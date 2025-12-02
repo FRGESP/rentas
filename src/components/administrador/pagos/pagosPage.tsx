@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Search, AlertCircle, DollarSign, Calendar, User, Home, Clock, CreditCard } from "lucide-react";
+import { Search, AlertCircle, DollarSign, Calendar, User, Home, Clock, CreditCard, Phone } from "lucide-react";
 import RegistrarAbonoModal from "./registrarAbonoModal";
 import { getCargosPago } from "@/actions";
 
@@ -244,6 +244,7 @@ function PagosPage({ contratoIdProp }: PagosPageProps) {
                           <span><span className="font-medium">Vencimiento:</span> {pago.FechaVencimiento}</span>
                         </div>
                         <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
                           <span className="font-medium">Teléfono:</span> {pago.Telefono}
                         </div>
                       </div>

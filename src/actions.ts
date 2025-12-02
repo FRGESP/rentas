@@ -164,8 +164,7 @@ export const addPropiedad = async (propiedad: Propiedad) => {
 
 export const deletePropiedad = async (id: number) => {
     const response = await axios.delete(`${process.env.URL}/api/users/administrador/propiedades/${id}`);
-    const data = response.data;
-    return data;
+    return response;
 }
 
 //Unidades

@@ -7,6 +7,7 @@ import AddModalUnidades from "./addModalUnidad";
 import UpdateModalUnidad from "./updateModalUnidad";
 import AddModalContrato from "@/components/administrador/contratos/contratoForm";
 import { useRouter } from 'next/navigation';
+import axios from "axios";
 
 interface UnidadPageProps {
     IdPropiedadProp: number;
@@ -52,13 +53,27 @@ function UnidadesPage({ IdPropiedadProp }: UnidadPageProps) {
     const handleDelete = async (id: number) => {
         if (confirm("¿Está seguro de que desea eliminar esta Unidad? \nEsto también cancelará todos los contratos asociados.")) {
             try {
-                const response = await deleteUnidad(id);
+                const response = await axios.delete(`/api/users/administrador/propiedades/unidades/${id}`);
                 if (response.status === 200) {
-                    fetchUnidades();
+                    if (response.data.RES == 1) {
+                        toast({
+                            title: "No se puede eliminar la unidad",
+                            description: "La unidad cuenta con un contrato activo, por lo que no se puede eliminar.",
+                            variant: "warning",
+                        });
+                    } else {
+                        fetchUnidades();
+                        toast({
+                            title: "Unidad eliminada",
+                            description: "La unidad ha sido eliminada",
+                            variant: "success",
+                        });
+                    }
+                } else {
                     toast({
-                        title: "Unidad eliminada",
-                        description: "La Unidad ha sido eliminada correctamente",
-                        variant: "success",
+                        title: "Error estatus",
+                        description: "La propiedad no ha sido eliminada correctamente",
+                        variant: "destructive",
                     });
                 }
             } catch (error) {
